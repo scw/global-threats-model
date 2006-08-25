@@ -12,11 +12,6 @@ gp = win32com.client.Dispatch("esriGeoprocessing.GpDispatch.1") # Create the geo
 gp.CheckOutExtension("spatial")                                 # Check out the required license
 gp.overwriteoutput = 1                                          # Overwrite existing files
 
-# Load required toolboxes...
-#gp.AddToolbox("Data Management Tools.tbx")
-#gp.AddToolbox("Spatial Analyst Tools.tbx")
-#gp.AddToolbox("Conversion Tools.tbx")
-
 # WCS URL for downloading SRTM90 tiles
 wcsUrl = 'http://cabrillo.nceas.ucsb.edu:8080/cgi-bin/mapserv?map=/opt/geodev/mapserver/srtm.map' \
          '&Version=1.0.0&request=GetCoverage&Coverage=srtm&service=WCS&CRS=EPSG:4326&Format='     \

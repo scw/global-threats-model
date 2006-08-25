@@ -1,0 +1,83 @@
+/* basingenerate.aml
+/* 
+/* Generates all hydrologic outputs for a dataset, including pruned
+/* basins. These paired down basins have had the extremely small 
+/* watersheds joined into larger watersheds.
+/*
+/* 3.24.2006 scw <walbridge@nceas.ucsb.edu>
+/* Input parameters: <dem> <fill depth> <prune limit> <output prefix> 
+
+&arg dem zlimit plimit prefix
+&severity &error &routine error
+&s vrfsave
+/*
+/* check current program
+&if [show program] ne GRID &then
+  &return FILL only runs in GRID.
+/*
+/* validate input arguments
+&if [null %dem%] OR [null %zlimit%] OR [null %plimit%] OR [null %prefix%] &then &do
+  &goto USAGE
+&end
+&s frmdir [show &workspace]
+&s todir  [dir [pathname %prefix%]]
+&s filled [entryname %prefix%_fill]
+&s facc   [entryname %prefix%_facc]
+&s fdir   [entryname %prefix%_fdir]
+&s bas    [entryname %prefix%_bas]
+&s basnib [entryname %prefix%_bas_n]
+&s dem    [pathname %dem%]
+&s dm     [substr [entryname %dem%] 1 6]
+&if not [null %zlimit%] and [type %zlimit%] gt 0 ~
+    and %zlimit%_ ne #_ &then &do
+  &type Z-limit is not a number
+  &goto USAGE
+&end
+&if not [null %plimit%] and [type %zlimit%] gt 0 ~
+    and %zlimit%_ ne #_ &then &do
+  &type P-limit is not a number
+  &goto USAGE
+&end
+/*
+/* prep the input grid
+&s vrfsave [show verify]
+verify off
+/*&s window = [show setwindow]
+/*&s cell = [show setcell]
+setwindow %dem%
+fill %dem% %filled% # %zlimit% %fdir%
+/*
+/* flowacc
+%facc% = flowaccumulation(%fdir%)
+/*
+/* basins
+%bas% = basin(%fdir%)
+%bas% = gridshape(%bas%, NOWEED)
+/*
+/* Now, do our nibble processing
+/* Prune watersheds
+&type Pruning Watersheds...
+%basnib% = nibble(%bas%, setnull(con(%bas%.count > %plimit%, 1, -99) == -99, %bas%.count))
+%basnib% = gridshape(%basnib%, NOWEED)
+
+verify %vrfsave%
+&workspace %frmdir%
+&return
+
+/*
+/* Usage
+&label USAGE
+  &return &warning ~
+  Usage: BASINGENERATE <in_grid> <z-limit> <p-limit> <out_prefix>
+
+/*
+/* Error Handling
+&routine error
+  &severity &error &fail
+  &if not [null %msgsave%] &then
+    &message %msgsave%
+  &if not [null %vrfsave%] &then
+    verify %vrfsave%
+  &if not [null %frmdir%] &then
+    &workspace %frmdir%
+&return &error
