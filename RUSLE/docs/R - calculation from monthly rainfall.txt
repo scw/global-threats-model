@@ -1,0 +1,53 @@
+Modified Fourniers Index (MFi) - (Arnoldus 1980)
+------------------------------
+
+  Mfi ~ R according to Essa (GIS Modelling of Land Degradation in Northern Jordan using Landsat imagery)
+
+  MFi = SUM ( monthly precip ^ 2 / annual precipitation total )
+
+
+Translate that to GIS:
+----------------------
+
+annual = jan + feb + ....
+{month}fi = {month} ^ 2 / annual
+mfi = janfi + febfi + ....
+
+
+
+Run using the mfi.py script
+------------------
+creates the following grids
+* TOTAL_YEAR (Annual Precip)
+* mfi_YEAR_MON (monthly MFI)
+* mfi_YEAR  (Annual MFI)
+
+Validate MFI as an Acceptable R value on a couple of known locations
+--------------------
+http://www.omafra.gov.on.ca/english/engineer/facts/00-001.htm#tab2 
+ Ontario seems to have R from 90 to 120 which validates very well with our annual MFI circa 1990
+
+
+Sum over 40 years
+-----------------
+ArcMap>>> SingleOutputMapAlgebra_sa 
+"(mfi_1961+mfi_1962+mfi_1963+mfi_1964+mfi_1965+mfi_1966+mfi_1967+mfi_1968+mfi_1969+mfi_1970+mfi_1971+mfi_1972+mfi_1973+mfi_1974+mfi_1975+mfi_1976+mfi_1977+mfi_1978+mfi_1979+mfi_1980+mfi_1981+mfi_1982+mfi_1983+mfi_1984+mfi_1985+mfi_1986+mfi_1987+mfi_1988+mfi_1989+mfi_1990+mfi_1991+mfi_1992+mfi_1993+mfi_1994+mfi_1995+mfi_1996+mfi_1997+mfi_1998+mfi_1999+mfi_2000) / 40" "avg_mfi_40yr"
+
+Problems
+---------
+
+When annual precip = 0, mfi goes to null
+  - change all nulls to 0
+TRUE nulls are -9999
+  - reclass all negative mfi values to null
+
+ArcMap>>> Reclassify C:\WorkSpace\precip\annual_mfi\avg_mfi_40yr Value "-9999 NODATA;NODATA 0" C:\WorkSpace\precip\annual_mfi\mfi_rcls 
+
+
+Problem with projection
+-----------------------
+projecting to LAEA gives null cells that intersect our land area
+solution: use nibble to expand the raster according to nearest neighbors within a specified mask ?
+solution: use r.resamp.rst to interpolate a new grid for the current region
+  r.resamp.rst input=mfi ns_res=865.39471975 ew_res=865.39471975 elev=mfi_rst40
+

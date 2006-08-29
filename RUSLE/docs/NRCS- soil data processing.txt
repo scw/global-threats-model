@@ -1,0 +1,129 @@
+http://soils.usda.gov/use/worldsoils/mapindex/order.html
+
+Created a VRT file to wrap the binary
+-------------
+<VRTDataset rasterXSize="10800" rasterYSize="5400">
+ <GeoTransform>-180.0,0.033333333333,0.0,90.0,0.0,-0.033333333333</GeoTransform>
+ <VRTRasterBand dataType="Byte" band="1" subClass="VRTRawRasterBand">
+   <SourceFilename relativetoVRT="1">suborder.img</SourceFilename>
+   <ImageOffset>0</ImageOffset>
+ </VRTRasterBand>
+</VRTDataset>
+
+
+Used gdal_translate to convert to tiff
+-------------
+gdal_translate -a_srs "+proj=latlong" -of GTiff suborder.vrt soil_suborders.tif
+
+
+
+Soil orders and their grid cell numbers for the global raster soils
+data from NRCS.
+------------
+order (#,....) variables..., K
+----------
+Alfisols (80,81,82,83,84,85)
+Andisols (20,21,22,23,2,25,26)
+Aridisols (50,51,52,53,54,55,56)
+Entisols (95,96,97,98,99)
+Gelisols (5,6,7)
+Histosols (10,11,12,13)
+Inceptisols (90,91,92,93,94)
+Mollisols (70,71,72,73,74,75,76)
+Oxisols (30,31,32,33,34)
+Spodosols (15,16,17,18)
+Ultisols (60,61,62,63,64)
+Vertisols (40,41,42,43,44,45)
+Rocky (2)
+Shifting Sands (1)
+Ice or Glacier (3)
+Ocean (0)
+-----------
+Use soil taxonomy pdf
+(http://soils.usda.gov/technical/classification/taxonomy/) data along
+with the nomograph
+(http://unix.eng.ua.edu/~rpitt/Workshop/WSErorionControl/Module3/Module3_files/image014.gif)
+to compute a reasonable K for each soil order.
+
+
+Then construct a reclass file (new value is K*100):
+
+----------------
+0 = 0  Ocean
+1 = 99 Shifting-Sand
+2 = 01 Rock
+3 = 0 Ice
+5 = 30 Gelisols-Histels
+6 = 30 Gelisols-Turbels
+7 = 30 Gelisols-Orthels
+10 = 20 Histosols-Folists
+11 = 20 Histosols-Fibrists
+12 = 20 Histosols-Hemists
+13 = 20 Histosols-Saprists
+15 = 20 Spodosols-Aquods
+16 = 20 Spodosols-Cryods
+17 = 20 Spodosols-Humods
+18 = 20 Spodosols-Orthods
+20 = 30 Andisols-Aquands
+21 = 30 Andisols-Cryands
+22 = 30 Andisols-Torrands
+23 = 30 Andisols-Xerrands
+24 = 30 Andisols-Vitrands
+25 = 30 Andisols-Ustands
+26 = 30 Andisols-Udands
+30 = 13 Oxisols-Aquox
+31 = 13 Oxisols-Torrox
+32 = 13 Oxisols-Ustox
+33 = 13 Oxisols-Perox
+34 = 13 Oxisols-Udox
+40 = 15 Vertisols-Aquerts
+41 = 15 Vertisols-Cryerts
+42 = 15 Vertisols-Xererts
+43 = 15 Vertisols-Torrerts
+44 = 15 Vertisols-Usterts
+45 = 15 Vertisols-Uderts
+50 = 32 Aridisols-Cryids
+51 = 32 Aridisols-Salids
+52 = 32 Aridisols-Durids
+53 = 32 Aridisols-Gypsids
+54 = 32 Aridisols-Argids
+55 = 32 Aridisols-Calcids
+56 = 32 Aridisols-Cambids
+60 = 18 Ultisols-Aquults
+61 = 18 Ultisols-Humults
+62 = 18 Ultisols-Udults
+63 = 18 Ultisols-Ustults
+64 = 18 Ultisols-Xerults
+70 = 38 Mollisols-Albolls
+71 = 38 Mollisols-Aquolls
+72 = 38 Mollisols-Rendolls
+73 = 38 Mollisols-Xerolls
+74 = 38 Mollisols-Cryolls
+75 = 38 Mollisols-Ustolls
+76 = 38 Mollisols-Udolls
+80 = 13 Alfisols-Aqualfs
+81 = 13 Alfisols-Cryalfs
+82 = 13 Alfisols-Ustalfs
+83 = 13 Alfisols-Xeralfs
+84 = 13 Alfisols-Udalfs
+85 = 13 Alfisols-Udepts
+90 = 36 Inceptisols-Aquepts
+91 = 36 Inceptisols-Anthrepts
+92 = 36 Inceptisols-Cryepts
+93 = 36 Inceptisols-Ustepts
+94 = 36 Inceptisols-Xerepts
+95 = 16 Entisols-Aquents
+96 = 16 Entisols-Arents
+97 = 16 Entisols-Psamments
+98 = 16 Entisols-Fluvents
+99 = 16 Entisols-Orthents
+*  = NULL
+---
+
+
+upload tif and reclass table to cabrillo
+grass61
+# location WGS84
+r.in.gdal input=transfered_data/soil_suborders.tif output=soils
+cat tables/soils_k_1.reclass | r.reclass input=soils output=K1
+r.colors map=K1 color=grey
