@@ -1,0 +1,53 @@
+Global Fisheries Data
+by Matthew Perry — last modified 16-06-2006 16:11
+
+Global fish catch data is first classified into fishing methods, associated with point locations, converted to a raster grid, then adjusted by primary productivity of the surrounding are. This technique gives us a ratio of fish catch to productivity - a useful measure of fishing pressure for each method.
+Overview
+
+The fish catch data was aggregated by 5 different fishing methods:
+
+   1. Palagic, high bycatch
+   2. Palagic, low bycatch
+   3. Demersal, destructive
+   4. Demersal, non-destructive, high bycatch
+   5. Demersal, non-destructive, low bycatch
+
+
+Each catch rate is associated with a particular point location. It is then rasterized and normalized by primary productivity to give an indicator of global fishing pressure.
+
+Methods
+
+    * Export the the point locations table from Access to dbf files
+    * Add XY data in ArcMap to convert the location table into a point dataset. Save as shapefile.
+    * select for each catch type and export a seperate dbf
+    * join each dbf to the cell locations (SEQ from the point layer -> CELL from the catch data) and output the 5 joined shapefiles.
+    * Rasterize each of the joined shapefiles using the catch rate column (CR) for the value.
+    * Resample the fisheries data to the same cellsize and extent and the productivty data
+    * Grid algebra to adjust for productivity. The focalmean ensures that local variations in production are not as important as the average productivity of the general area.
+
+cw C:/WorkSpace/Global_Fisheries_NEW/normalized
+w C:/WorkSpace/Global_Fisheries_NEW/normalized
+grid
+
+fishprod1 = (C:/WorkSpace/Global_Fisheries_NEW/resamp_rasters/fish1 * 907184.74) div 
+            float(focalmean(C:/WorkSpace/ocean_primary_production/nibble/prodnib))
+fishprod2 = (C:/WorkSpace/Global_Fisheries_NEW/resamp_rasters/fish2 * 907184.74) div 
+            float(focalmean(C:/WorkSpace/ocean_primary_production/nibble/prodnib))
+fishprod3 = (C:/WorkSpace/Global_Fisheries_NEW/resamp_rasters/fish3 * 907184.74) div 
+            float(focalmean(C:/WorkSpace/ocean_primary_production/nibble/prodnib))
+fishprod4 = (C:/WorkSpace/Global_Fisheries_NEW/resamp_rasters/fish4 * 907184.74) div 
+            float(focalmean(C:/WorkSpace/ocean_primary_production/nibble/prodnib))
+fishprod5 = (C:/WorkSpace/Global_Fisheries_NEW/resamp_rasters/fish5 * 907184.74) div 
+            float(focalmean(C:/WorkSpace/ocean_primary_production/nibble/prodnib))
+
+
+ The unit conversion factor ensures that the output grids ensure that the units are tons of fish catch per tons of carbon production annually.
+
+units on fish catch: millions of tons fish / km^2 * 1km^2/ 1,000,000 m^2 = tons fish/ m^2
+
+units on procuctivity: grams Carbon/ m^2 * 1 ton carbon/ 907184.74 g carbon  = tons carbon / 907184.74 m^2
+
+fish catch / productivity : tons fish / m^2 * 907184.74 m^2 / tons carbon = tons fish / tons carbon
+
+
+

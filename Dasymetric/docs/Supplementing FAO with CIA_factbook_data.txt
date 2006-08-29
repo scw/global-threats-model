@@ -1,0 +1,75 @@
+Downloaded GDP and % GDP by sector data from CIA world factbook site
+Formatted text and brought into excel, calculated total GDP for agriculture
+Hand joined the FERT and PEST data from the FAO
+Removed all rows with zeros for FERT, PEST or GDPAG
+R to develop regression
+d <- read.dbf('c:\\workspace\\cia_factbook\\gdp_agriculture_fert_pest_nozeros.dbf')
+pestmodel <- lm(d$PEST ~ d$GDPAG)
+
+> pestmodel
+
+Call:
+lm(formula = d$PEST ~ d$GDPAG)
+
+Coefficients:
+(Intercept)      d$GDPAG  
+  7.338e+03    4.073e-07  
+
+> summary(pestmodel)
+
+Call:
+lm(formula = d$PEST ~ d$GDPAG)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-202107   -7821   -6047   -2697  362608 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 7.338e+03  2.910e+03   2.522   0.0126 *  
+d$GDPAG     4.073e-07  2.660e-08  15.311   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+Residual standard error: 37420 on 172 degrees of freedom
+Multiple R-Squared: 0.5768,     Adjusted R-squared: 0.5743 
+F-statistic: 234.4 on 1 and 172 DF,  p-value: < 2.2e-16 
+
+--------------------------------------------------------------
+Pesticide = 7338 + 0.0000004073(GDPAG)
+--------------------------------------------------------------
+
+
+
+> fertmodel <- lm(d$FERT ~ d$GDPAG)
+> fertmodel
+
+Call:
+lm(formula = d$FERT ~ d$GDPAG)
+
+Coefficients:
+(Intercept)      d$GDPAG  
+  9.711e+04    2.749e-05  
+
+> summary(fertmodel)
+
+Call:
+lm(formula = d$FERT ~ d$GDPAG)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-5387077  -196877  -107414   -53098 16223075 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 9.711e+04  1.088e+05   0.892    0.374    
+d$GDPAG     2.749e-05  9.949e-07  27.630   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+Residual standard error: 1400000 on 172 degrees of freedom
+Multiple R-Squared: 0.8161,     Adjusted R-squared: 0.8151 
+F-statistic: 763.4 on 1 and 172 DF,  p-value: < 2.2e-16 
+------------------------------------------
+Fertilizer = 97110 + 0.00002749(GDPAG)
+------------------------------------------
