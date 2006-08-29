@@ -44,8 +44,6 @@ perform the following operations::
 VBA Usage
 =========
 
-test test test
-
 Open the field calculator: Right click Shapefile, select *Open attribute table*,
 right click on the column to be calculated, choose *Calculate values*. From this
 field calculator, select *Load...* and chose a .cal file::
