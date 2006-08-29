@@ -1,0 +1,303 @@
+Modelling Global Erosion Potential by River Basin - A GIS based RUSLE model
+by Matthew Perry — last modified 08-02-2006 15:29
+
+Rivers contribute 95% of sediment entering the ocean. A river’s sediment load is related to many watershed-based processes generally consisting of erosion and deposition. Previous global sediment studies use coarse resolution (0.5 degree) spatial data and empirical models based on area, relief and temperature to derive estimates. Using global datasets of soils, rainfall, elevation and vegetation at a 30 arc-second (approximately 1km) spatial resolution, we were able to use the RUSLE model to predict a global erosion potential map. By summing the erosion potential by basin, we derived estimates of annual sediment load for each river. The estimates for 121 rivers were compared to observed sediment loads and were found to predict within 2 orders of magnitude in all but 3 cases. Techniques were explored to adjust the estimates for the effects of dams, reservoirs and other depositional factors but these did not increase the predictive power of the model.
+
+
+
+Introduction
+
+
+The Universal Soil Loss Equation was developed by the USDA Agricultural Research Service in 1965 as an empirical method to compute soil loss in agricultural fields (Brooks, 2003). The Revised Universal Soil Loss Equation (RUSLE) is based on the same empirical theory as USLE but has been improved in many areas such as methods for calculating rainfall and slope parameters. The RUSLE model is detachment capacity limited (Mitasova, ); it only takes into account erosional factors and does not consider the effects of sediment deposition. Erosion is calculate according to this formula:
+
+E = R K LS C P
+
+Where:
+
+E = Annual Erosion
+
+R = Rainfall Erosivity Factor
+
+K = Soil Erodibility Factor
+
+LS = Slope Factor
+
+C= Vegetative Cover
+
+P = Management Factor
+
+
+*** Rainfall factor, Fourniers Index
+
+*** Soil factor, nomograph
+
+*** Slope factor, GIS to calculate upslope area/ flow accumulation -based LS instead of length
+
+*** Replace C and P with a combine vegetative management factor.
+
+
+Methods
+
+
+Datasets
+
+A. Vegetation - IGBP Modis data
+
+B. Rainfall Intensity - 40 year monthly average grids at 0.5 degree res.
+
+C. Soils - USDA NRCS Global Soil Regions
+
+D. Elevation - SRTM, waterbodies maksed
+
+E. GTN basins - Major global basins delineated
+
+F. Sediment data - Excel Spreadsheet
+
+ 
+
+Calculating Rainfall Intensity
+
+ For each year, the total annual rainfall was calulated by summing the monthly grids. The modified fourniers index was calculated for each month by squaring the monthly precipitation and dividing by the annual total. The annual mfi was calculated by summing the montly mfi grids. The forty year average MFI was calculated by taking the mean of all 40 annual mfi grids. Muliply by 17.02 to convert to inches.
+
+
+Determining Regions
+
+Since the RUSLE model relies on area calculations, the data was required to be in an equal area projection. There were no sufficient global projections which retained area without severly distorting direction and shape. Therefore it was necessary to divide the datasets into 7 regions and determine a unique projection and extent for each such that all included landmasses were relatively free of distortion. Our 7 regions included:
+
+    * North America
+    * South America
+    * Africa
+    * Europe
+    * Mainland Asia
+    * Australia
+    * Pacific Islands
+
+
+Reprojection and Clipping
+
+The chosen projection was Lambert Azimuthal Equal Area and each region differed in it's standard parrallel and central meridian were adjusted to minimize distortion for the region.
+
+*** Table showing proj parameters,extents for each region
+
+When reprojecting, the cellsize had to be optimized to minimize the effects of resampling.
+
+*** Formula for determining cell size
+
+*** Table showing cell size for each.
+
+ArcGIS used to reproject and clip all input datasets.
+
+
+Import to GRASS
+
+ Once the data was prepared, the RUSLE model processing was implemented in GRASS.
+
+*** Transfer data to GRASS using seperate locations for each region
+
+
+
+Reclassing vegetative cover to VM factor
+
+The vegetation map had 17 broad classes. In cases where previous empirical estimates were not available, a best guess was made by interpolating from available sources (Neteler and Mitasova, Brooks). The values are scaled by 1000.
+
+0 = 0 Water
+1 = 5 Evergreen Needleleaf Forest
+2 = 7 Evergreen Broadleaf Forest
+3 = 10 Deciduous Needleleaf Forest
+4 = 12 Deciduous Broadleaf Forest
+5 = 9 Mixed Forests
+6 = 50 Closed Shrublands
+7 = 75 Open Shrublands
+8 = 50 Woody Savannas
+9 = 80 Savannas
+10 = 75 Grasslands
+11 = 0 Permanent Wetlands
+12 = 320 Croplands
+13 = 100 Urban and Built-Up
+14 = 140 Cropland/Natural Vegetation Mosaic
+15 = 0 Snow and Ice
+16 = 200 Barren or Sparsely Vegetated
+17 = 0 IGBP Water Bodies
+254 = Null Unclassified
+255 = Null Fill Value
+
+Reclassing soil suborders to K factor
+
+To create generate the soil factor, we used a soil nomograph(USDA,1980) based on available information from the soil taxonomy description (http://soils.usda.gov/technical/classification/taxonomy/). Detailed information was only available at the soil order level so the suborders had to be aggregated. The values are scaled by 100.
+
+0 = 0 Ocean
+1 = 99 Shifting-Sand
+2 = 01 Rock
+3 = 0 Ice
+5 = 30 Gelisols-Histels
+6 = 30 Gelisols-Turbels
+7 = 30 Gelisols-Orthels
+10 = 20 Histosols-Folists
+11 = 20 Histosols-Fibrists
+12 = 20 Histosols-Hemists
+13 = 20 Histosols-Saprists
+15 = 20 Spodosols-Aquods
+16 = 20 Spodosols-Cryods
+17 = 20 Spodosols-Humods
+18 = 20 Spodosols-Orthods
+20 = 30 Andisols-Aquands
+21 = 30 Andisols-Cryands
+22 = 30 Andisols-Torrands
+23 = 30 Andisols-Xerrands
+24 = 30 Andisols-Vitrands
+25 = 30 Andisols-Ustands
+26 = 30 Andisols-Udands
+30 = 13 Oxisols-Aquox
+31 = 13 Oxisols-Torrox
+32 = 13 Oxisols-Ustox
+33 = 13 Oxisols-Perox
+34 = 13 Oxisols-Udox
+40 = 15 Vertisols-Aquerts
+41 = 15 Vertisols-Cryerts
+42 = 15 Vertisols-Xererts
+43 = 15 Vertisols-Torrerts
+44 = 15 Vertisols-Usterts
+45 = 15 Vertisols-Uderts
+50 = 32 Aridisols-Cryids
+51 = 32 Aridisols-Salids
+52 = 32 Aridisols-Durids
+53 = 32 Aridisols-Gypsids
+54 = 32 Aridisols-Argids
+55 = 32 Aridisols-Calcids
+56 = 32 Aridisols-Cambids
+60 = 18 Ultisols-Aquults
+61 = 18 Ultisols-Humults
+62 = 18 Ultisols-Udults
+63 = 18 Ultisols-Ustults
+64 = 18 Ultisols-Xerults
+70 = 38 Mollisols-Albolls
+71 = 38 Mollisols-Aquolls
+72 = 38 Mollisols-Rendolls
+73 = 38 Mollisols-Xerolls
+74 = 38 Mollisols-Cryolls
+75 = 38 Mollisols-Ustolls
+76 = 38 Mollisols-Udolls
+80 = 13 Alfisols-Aqualfs
+81 = 13 Alfisols-Cryalfs
+82 = 13 Alfisols-Ustalfs
+83 = 13 Alfisols-Xeralfs
+84 = 13 Alfisols-Udalfs
+85 = 13 Alfisols-Udepts
+90 = 36 Inceptisols-Aquepts
+91 = 36 Inceptisols-Anthrepts
+92 = 36 Inceptisols-Cryepts
+93 = 36 Inceptisols-Ustepts
+94 = 36 Inceptisols-Xerepts
+95 = 16 Entisols-Aquents
+96 = 16 Entisols-Arents
+97 = 16 Entisols-Psamments
+98 = 16 Entisols-Fluvents
+99 = 16 Entisols-Orthents
+* = NULL
+
+
+Scaling factor to account for units
+
+VM Real / VM used = 0.001
+K real / K used = 0.01
+
+this gives us tons/acre
+
+1 square meter = 0.0002471 acres
+mult this by * cellsizeX[m] * CellsizeY[m]  to get tons/cell
+
+1US Ton = 0.9071847 Metric tons
+
+scale factor = 0.001 * 0.01 * 0.0002471 * cellsizeX * cellsizeY * 0.9071847
+
+yields metric tons per cell.
+
+
+Flow accumulation
+
+*** r.terraflow.short
+
+Slope
+
+*** r.slope.aspect
+
+LS factor
+
+*** r.mapcalc "lsfact=%f*exp(flowacc*%s/22.1,%f)*exp(sin(slope)/0.09,%f) .. from Mitasova
+
+
+Resampling rainfall intensity
+
+***grow by a 3 pixels to avoid coastal problems
+
+*** r.resamp.rst input=mfi ns_res=865.39471975 ew_res=865.39471975 elev=mfi_rst40
+
+
+Running the model
+
+Simply multiply the input grids and the scaling factor. Processes is taken care of by a python script to preprocess input datasets (meta_rusle.sh) and to run the actual model (r.rusle.py)
+
+
+Finding GTN basins with valid sediment estimates
+
+Eliminated duplicate river observations from spreadsheet and picked the one furthest downsteam. Hand joined with a list of gtn basins and created a shp of all 121 matching basins with observed sediment as attribute
+
+
+Extracting total erosion potential by basin
+
+Zonal statistics as table against the RUSLE grid. Rejoin the table with the gtn basins and export the dbf which contains both observered and modelled sediment loads.
+
+
+Adjusting the model for Deposition
+
+Zonal stats or intersection to find data by basin. export table and compare residual to potential explanartory variable.
+
+
+Results
+
+ 
+
+Map of observered vs modelled
+
+
+R statistics to validate.
+
+*** Regression
+
+*** Log transform plot
+
+*** Outliers
+
+Adjustment for Depositon
+
+A.      Dams
+
+B.       Global Lakes and Resevoirs
+
+C.       Climate
+
+D.      Irrigation
+
+E.       Population
+
+F.      Mining
+
+
+Conclusions
+
+A. Consider ag practices, development, forest harvests, etc
+
+B. Incorporate depostition from wetlands and resevoirs
+
+C. Issues of scale
+
+D. "Best Guess" at global erosion potential
+
+ 
+
+ 
+Appendicies
+
+1. ArcMap scripts and models
+
+2. GRASS scripts

@@ -1,0 +1,151 @@
+Validating RUSLE
+
+Joining FAO sediment data with GTN basins:
+
+- FAO sediment spreadsheet: 
+  calculate annual sediment load (sediment avg * area)
+  remove redundant observations, keeping the one with greatest area (or if area was equal, the greatest sediment load)
+  removed all unnamed rivers
+
+- Matched with basin names/ids from GTN
+
+- Created dbf from all matched records (obs_sediment_by_basin.dbf) and joined to gtn in ArcMap
+
+- Selected all matched basins and export as shapefile (gtn_obs_sediment.shp)
+
+
+reproject shp to 7 different laea projections & clip to continent mask (gtn_clip.shp)
+
+manually remove all partial watersheds (gtn_select.shp)
+
+Run zonal stats to get sum of rusle pixels within polygon
+
+ZonalStatisticsAsTable C:\WorkSpace\rusle_try3\na\gtn_select.shp basin_id C:\WorkSpace\rusle_try3\na\rusle C:\WorkSpace\rusle_try3\na\rusle_zonal.dbf DATA
+ZonalStatisticsAsTable C:\WorkSpace\rusle_try3\sa\gtn_select.shp basin_id C:\WorkSpace\rusle_try3\sa\rusle C:\WorkSpace\rusle_try3\sa\rusle_zonal.dbf DATA
+
+ZonalStatisticsAsTable C:\WorkSpace\rusle_try3\au\gtn_select.shp basin_id C:\WorkSpace\rusle_try3\au\rusle C:\WorkSpace\rusle_try3\au\rusle_zonal.dbf DATA
+ZonalStatisticsAsTable C:\WorkSpace\rusle_try3\as\gtn_select.shp basin_id C:\WorkSpace\rusle_try3\as\rusle C:\WorkSpace\rusle_try3\as\rusle_zonal.dbf DATA
+ZonalStatisticsAsTable C:\WorkSpace\rusle_try3\eu\gtn_select.shp basin_id C:\WorkSpace\rusle_try3\eu\rusle C:\WorkSpace\rusle_try3\eu\rusle_zonal.dbf DATA
+ZonalStatisticsAsTable C:\WorkSpace\rusle_try3\af\gtn_select.shp basin_id C:\WorkSpace\rusle_try3\af\rusle C:\WorkSpace\rusle_try3\af\rusle_zonal.dbf DATA
+
+- Manually create one master table all_rusle_zonal.csv
+- Manually join all_rusle_zonal.csv with the latlong gtn dbf (gtn_obs_sediment.dbf). save as gtn_obs_modelled_sediment.csv
+  
+- take csv into R and compare: (modelled value = "mod", observed value = "obs")
+   d <- read.csv('C:\\Workspace\\rusle_try3\\gtn_obs_modelled_sediment.csv')
+
+# plot mod vs obs
+> plot(d$mod,d$obs)
+> abline(lm(d$obs ~d$mod))
+# plot log(mod) vs log(obs)
+> plot(log(d$mod), log(d$obs))
+> abline(lm(log(d$obs) ~ log(d$mod)))
+
+# R^2
+> cor(d$mod, d$obs)^2
+   # [1] 0.3218926
+
+# Plot the modelled / observed in log10 to see how many rivers are > 2 orders of magnitude
+> plot(log10(d$mod / d$obs))
+> hist(log10(d$mod / d$obs))
+
+# What percentage are less than two orders of magnitude
+> length(d$basin_nm[log10(d$mod / d$obs)<2]) / length(d$basin_nm)
+  # [1] 0.9173554
+
+# What percentage are under predicted? 
+> length(d$basin_nm[log10(d$mod / d$obs)<0]) / length(d$basin_nm)
+  # 0.02479339 under predicted
+  # 0.9752066 over predicted
+ 
+  
+##############
+Model overpredicts
+account for units properly
+d$model <- d$mod/17.02
+
+#####
+Divide the rusle grids by 17.02 in rusle_try3/<cntry>/ to correct for units
+w rusle_try3
+af\rusle_fix = af\rusle / 17.02
+as\rusle_fix = as\rusle / 17.02
+au\rusle_fix = au\rusle / 17.02
+eu\rusle_fix = eu\rusle / 17.02
+na\rusle_fix = na\rusle / 17.02
+pa\rusle_fix = pa\rusle / 17.02
+sa\rusle_fix = sa\rusle / 17.02
+
+#####
+Incorporating other data to adjust model:
+
+glwd1 : global lakes and water
+intersected with gtn_obs_mod_sediment.shp
+ArcGIS summary by river_id: sum of resevoir volume by watershed
+Compare to modvobs (residuals) gave no significant relationship:
+R^2 = 0.0464
+* glwd1.Volume doesn't predict our model error
+
+Sum of dam inflow by watershed
+R^2 = 0.00050
+
+dams: dam volume intersect with basins summarized by river id
+R^2 = 0.0638
+
+average precipitation: 
+zonal stats by gtn basin against total rainfall (nonull_2000)
+join output from above back to gtn_obs_mod and export
+R^2 = 0.0056
+
+mines: VMAP mines; number of mines per basin
+R^2 = 0.0021
+
+tempurature: Mean annual temp per basin
+R^2 = 0.0007
+
+population: North America ONLY
+R^2 = 0.0014
+
+percent irrigated land? = mean of gima grid
+R^2 = 0.00201
+
+
+*********************
+Some real stats to validate:
+
+g <- read.dbf('C:\\workspace\\rusle_try3\\gtn_obs_mod_sediment_table.dbf')
+
+> gmod <- lm(g$OBS ~ g$MOD2)
+> gmod
+
+Call:
+lm(formula = g$OBS ~ g$MOD2)
+
+Coefficients:
+(Intercept)       g$MOD2  
+  1.783e+07    1.501e+00  
+
+> summary(gmod)
+
+Call:
+lm(formula = g$OBS ~ g$MOD2)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-415754980  -25297515  -18138531   -8526890 1128237166 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 1.783e+07  1.519e+07   1.174    0.243    
+g$MOD2      1.501e+00  1.998e-01   7.516 1.16e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+Residual standard error: 152900000 on 119 degrees of freedom
+Multiple R-Squared: 0.3219,     Adjusted R-squared: 0.3162 
+F-statistic: 56.49 on 1 and 119 DF,  p-value: 1.16e-11 
+
+
+
+
+  
+

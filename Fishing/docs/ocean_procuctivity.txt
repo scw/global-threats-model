@@ -1,0 +1,69 @@
+Ocean Primary Productivity
+
+http://marine.rutgers.edu/opp/
+http://marine.rutgers.edu/opp/Production/html_files/Annu_Glb_T_Cld_Inh1.html
+ftp://marine.rutgers.edu/pub/opp/Production/data_files/Annu_Glb_T_Cld_Inh.bin
+
+Results for the standard parameterization of the VGPM where PBopt is modeled following Behrenfeld and Falkowski (1997) and surface irradiance is corrected for cloudiness.
+
+units: g C/m2/yr
+
+360/2048 = 0.17578125
+
+create vrt (start with openev import raw then edit text)
+
+<VRTDataset rasterXSize="2048" rasterYSize="1024">
+  <GeoTransform>-180.0,0.17578125,0,90.0,0,-0.17578125</GeoTransform>
+  <VRTRasterBand dataType="Float32" band="1" subClass="VRTRawRasterBand">
+    <SourceFilename relativeToVRT="0">C:\WorkSpace\ocean_primary_production\Annu_Glb_T_Cld_Inh.bin</SourceFilename>
+    <ByteOrder>MSB</ByteOrder>
+    <ImageOffset>0</ImageOffset>
+    <PixelOffset>4</PixelOffset>
+    <LineOffset>8192</LineOffset>
+  </VRTRasterBand>
+</VRTDataset>
+
+gdal_translate -of AAIGrid -ot Float32 productivity2.vrt productivity.asc
+
+Arcmap:
+- ASCIItoGrid
+- Flip (output => productivity3)
+
+-----------------------------------------
+Null the zero values
+Grid: prod4 = con( productivity3 > 0 , productivity3)
+
+convert to points
+arc: gridpoint prod4 prod prod
+arc: arcshape prod point primary_production.shp
+
+--------------------------------------------
+Growing/Nibbling:
+  mask grid is integer, represents values that you want to KEEP, nulls represent values that will be nibbled
+  ingrid is integer, all non nulls that are null in mask will be nibbled.
+ grid:
+  prodmask = int(production)
+  buildvat prodmask
+  prodingrid = con( isnull(prodmask), 0, prodmask)
+  buildvat prodingrid
+  nib1 = nibble(prodingrid,prodmask)
+  buildvat nib1
+  
+
+
+--------------------------------------------
+
+
+
+subset
+ - sum = (92965.99515330955 * 69 * 67) = 429781795.59375006
+   
+project raster (cellsize =  (0.17578125 / 0.00833333333) * srtmcellsize )
+ - sum = (93964.69950417875 * 71 * 73) = 487019037.5301584
+   
+resample (nearest neighbor, down to srtmcellsize)
+ - sum = (93906.3053112061 * 1498 * 1540) = 216634333848.52759
+ - proportion vs originial = (216634333848.52759 / 429781795.59375006) = 504.05656095611022
+
+divide resample by proportion
+ 

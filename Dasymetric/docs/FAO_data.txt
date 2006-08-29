@@ -1,0 +1,122 @@
+FAO data:
+
+Get country codes from http://faostat.fao.org/faostat/form?version=ext&collection=FBS&Domain=FBS&language=EN&servlet=1&axis=area&xsl=areareflist
+
+Remove the regions and save as csv (remove year headers since dbfs can't have numeric header names)
+
+Join to world data with a shapefile (using country names) 
+
+Change names to match fao names and codes then rejoin
+
+Dissolve based on code and fao_name
+
+Select out those areas with non-zero codes
+
+
+
+
+TFC9302 -> 1st three are variable code, next two are first year, last two are last year \                                            (value is inclusive average of years)
+
+Variable, code and units
+------------------------------------------------
+Total Fertilizer Consumption		TFC	(units = Metric Tons)
+Total Pesticide Consumption		TPC	(units = Metric Tons)
+Total Land Area				TLA	(units = 1000 Hectares)
+Total Agricultural Land Area		TAL	(units = 1000 Hectares)
+Arable and Permanent Crops		APC	(units = 1000 Hectares)
+Arable Land					ALN	(units = 1000 Hectares)
+Permanent Cropland			PCR	(units = 1000 Hectares)
+Permanent Pasture				PPA	(units = 1000 Hectares)
+Irigated Agricultural Area		IAA	(units = 1000 Hectares)
+Forest and Woodland Area		FWL	(units = 1000 Hectares)
+
+  
+===================================================================================================
+
+To calculate 10 year averages:
+----
+ Remove all zeros that were not true zeros. If there were zeros mixed in with greater values, they were assumed to be null. 
+
+ We keep averages even if n=1 since that consititutes the best guess. 
+
+ If a countries' average is zero where it clearly should have a value (ie China has a pesticide average of 0!), then we use a logistical regression between fertilizer and pesticide for similar countries to estimate the unknown.
+
+ - subset countries wth both pesticide and fetilizer values (n=133) => ArcMap, select, export
+ - develop regression eq for subset. => >
+
+
+
+> d <- read.dbf('c:\\workspace\\FAO\\raw_data\\tfctpc_countries_join_nozeros.dbf')
+> mod <- lm(d$TPC9201 ~ d$TFC9302)
+> mod
+
+Call:
+lm(formula = d$TPC9201 ~ d$TFC9302)
+
+Coefficients:
+(Intercept)    d$TFC9302  
+  4.560e+03    1.651e-02  
+
+> summary(mod)
+
+Call:
+lm(formula = d$TPC9201 ~ d$TFC9302)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-147273.1   -4635.5   -4324.2    -806.4  110414.7 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 4.560e+03  2.093e+03   2.178   0.0312 *  
+d$TFC9302   1.651e-02  8.791e-04  18.782   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+Residual standard error: 23090 on 131 degrees of freedom
+Multiple R-Squared: 0.7292,     Adjusted R-squared: 0.7271 
+F-statistic: 352.8 on 1 and 131 DF,  p-value: < 2.2e-16 
+
+
+ **********
+  pesticide = 4560 + 0.01651(fertilizer)
+ **********
+
+
+Visualization:
+
+> plot(d$TFC9302,d$TPC9201)
+> abline(d.lm)
+> identify(d$TFC9302,d$TPC9201,label=d$FAO_NAME,n=10)
+
+
+
+ - use the regression to calculate values for countries missing pesticide. => ArcMap, select, calculate
+
+223 countries total ....
+
+134 countries have fert, pest, and gdp
+ 45 countries have fert and gdp but no pest
+ 41 countries have gdp but no fert or pest
+  3 countries have no data
+  
+
+ - What can we say about the remaining 45 countries?
+    - some are tiny island countries of little overall significance to overall study
+    - some may have no agriculture thus no fertilizer/pesticide use
+    - some may not have reported any fert/pesticide use
+
+ *** See the "Supporting FAO with CIA factbook data ***
+
+ 
+
+
+
+
+
+ - subset to all non-zero nations and export => ArcMap, select, export
+
+
+
+Name this one FAO2 and put it in dasym/lookups/       
+

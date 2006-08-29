@@ -1,0 +1,46 @@
+Dasymetric Mapping
+
+Terminology: 
+  auxillary data (aux) = the raster data across which the totals will be dispersed (ie landcover)
+  variable of interest (voi) = The variable we want to disperse (ie population). Stored in an attribute table, aggregated by polygon.
+
+1. Rasterize the vector layer representing the variable of interest. The cellsize and extent should be the exact same as the auxillary data
+
+  [ArcGIS]
+  spatial analyst > options > extent = vector
+  spatial analyst > options > cell size = raster
+  spatial analyst > convert > features to raster (use the variable of interest as the output column)
+
+2. Combine the variable raster with the auxillary data. First the variable raster must be integer to avoid having too many unique values.
+
+  [ArcInfo GRID]
+  voi2 = int(voi) 
+  combine = combine(voi2,aux)
+
+3. Export the combine table to dbf
+  
+  [ArcInfo]
+  infodbase combine.vat combine.dbf
+
+4. Create a table with a row for each auxillary class and it's relative weighting (must add up to 1). Use Excel and export as DBF4.
+
+5. Run the model which distributes the variable across the landscape and outputs a raster.
+  
+  [PythonWin]
+  <My docs>\scripts\dasym_tables.py
+
+
+------------
+validation:
+dasymetric values total
+4577603.018
+countries total
+4577627.3
+
+difference:
+24.28243902
+
+pctdiff:
++ 0.000530%
+ 
+
