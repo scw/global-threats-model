@@ -1,4 +1,20 @@
 #!/usr/bin/python
+"""
+  Threat Matrix Combination Model
+
+  For each threat/habit combo, combine them according to
+  weighting defined in a matrix file. The final output
+  is the sum of all weighted combinations.
+
+  The matrix file will have the following format:
+
+    ,habitat1,habitat2
+    threat1,4,2
+    threat2,3,1
+
+  Author: Matthew Perry
+  Date: 09/26/2006
+"""
 
 import sys
 
