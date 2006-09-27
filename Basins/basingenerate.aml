@@ -52,12 +52,14 @@ fill %dem% %filled% # %zlimit% %fdir%
 /*
 /* basins
 %bas% = basin(%fdir%)
+buildvat %bas%
 %bas% = gridshape(%bas%, NOWEED)
 /*
 /* Now, do our nibble processing
 /* Prune watersheds
 &type Pruning Watersheds...
 %basnib% = nibble(%bas%, setnull(con(%bas%.count > %plimit%, 1, -99) == -99, %bas%.count))
+buildvat %basnib%
 %basnib% = gridshape(%basnib%, NOWEED)
 
 verify %vrfsave%
