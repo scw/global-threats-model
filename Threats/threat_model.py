@@ -1,8 +1,9 @@
 #!/usr/bin/python
 """
-  Threat Matrix Combination Model
+  Threat Matrix Model
 
-  For each threat/habit combo, combine them according to
+  For each threat/habit combo (already created using 
+  generate_combos.py), add them according to
   weighting defined in a matrix file. The final output
   is the sum of all weighted combinations.
 

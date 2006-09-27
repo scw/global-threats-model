@@ -3,7 +3,7 @@
   Threat Matrix Combination Script
 
   For each threat/habit combo, combine them into a single
-  raster. While the martix file is needed to define the
+  raster. While the matrix file is needed to define the
   threats and habitats, the weighting values are not 
   applied until you run the actual model (threat_model.py)
 
