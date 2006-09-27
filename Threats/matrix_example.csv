@@ -1,0 +1,6 @@
+,habitat_basin_hard,habitat_basin_soft,habitat_cshelf_hard,habitat_cshelf_soft,habitat_cslope_hard,habitat_cslope_soft,habitat_nearsh_hard,habitat_nearsh_soft
+threat_fish1,1,2,3,4,1,2,3,4
+threat_fish2,0.5,1.5,3.5,2.3,3.4,2.2,2,3
+threat_fish3,0,1,4,0.6,0.1,2.4,1,2
+threat_fish4,0.5,0.5,2.5,1.1,2.8,2.6,0,1
+threat_fish5,0,0,5,2.8,2.1,2.8,0,0
