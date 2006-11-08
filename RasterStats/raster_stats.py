@@ -393,7 +393,7 @@ def importShp(v,options):
     return 0
 
 def makePivotSql(c,dr,v,options):
-    # Pivot the continuous tables and join to master table
+    # Pivot the discrete tables and join to master table
     for r in dr:
         c.execute("SELECT discrete_pivot('%s_join','%s_%s_%s','%s')" % \
           (options['tablePrefix'],options['tablePrefix'],v['name'],r['name'],r['name']) ) 
