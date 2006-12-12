@@ -5,6 +5,10 @@
 
  Extracts raster stats by polygon using system calls to starspan
  Then joins the statistics into a single table in postgresql database
+
+ Note that since a db password is required (but not hardcoded here for good reason)
+ you must have a ~/.pgpass file with 0600 permissions whose contents read:
+   hostname:port:database:username:password 
 """
 
 import os, sys, psycopg2
@@ -18,19 +22,19 @@ try:
     db = sys.argv[2]
 except:
     print "raster_stats.py [continent-abbreviation] [database-name]*"
-    print " * [database-name] must already exist and have postgis functions"
+    print " * [database-name] must already exist and have postgis and discrete_pivot functions"
     print 
     print " Make sure to edit the options that are hardcoded in this script !!"
     sys.exit(1) 
 
 
 options = {'starspanBin':  "/usr/local/bin/starspan",
-           'outputDir':    "/home/perry/starspan/outputs/%s" % continent,
-           'outshpDir':    "/home/perry/starspan/outshp/%s" % continent,
+           'outputDir':    "/mnt/storage/marine_threats/work/raster_stats/outputs/%s" % continent,
+           'outshpDir':    "/mnt/storage/marine_threats/work/raster_stats/outshp/%s" % continent,
            'tablePrefix':  continent,
            'db':           db,
-           'rasterPath':   "/home/perry/starspan/rasters",
-           'vectorPath':   "/home/perry/starspan/vectors/basins",
+           'rasterPath':   "/mnt/storage/marine_threats/work/raster_stats/rasters",
+           'vectorPath':   "/mnt/storage/marine_threats/work/raster_stats/vectors/basins",
            'connection':   "dbname=%s user=perry host=localhost" % db}
 
 # Set up postgis connection
@@ -39,6 +43,12 @@ try:
     c = conn.cursor()
 except:
     print "Can't Make Postgres Connection!"
+    print options['connection']
+    print """
+ Note that since a db password is required (but not hardcoded here for good reason)
+ you must have a ~/.pgpass file with 0600 permissions whose contents read:
+   hostname:port:database:username:password 
+"""
     sys.exit(1)
 
 def getDiscreteRasters(options):

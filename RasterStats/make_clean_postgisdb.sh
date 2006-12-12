@@ -1,13 +1,21 @@
 #!/bin/bash
 
 if [ $# -ne 1 ]; then
-  echo "make_clean_db.sh database-name"
+  echo "make_clean_postgisdb.sh database-name"
   exit
 fi
 
-dropdb $1
-createdb $1
+export POSTGIS_SRC=/usr/share/postgresql/8.1/contrib/postgis-1.1.2
+export USER=perry
+
+dropdb $1 
+
+createdb $1 -U $USER
+
 createlang -d $1 plpgsql
-psql -d $1 -f /usr/local/share/postgresql/contrib/lwpostgis.sql
-psql -d $1 -f /usr/local/share/postgresql/contrib/spatial_ref_sys.sql
-psql -d $1 -f /home/perry/scripts/discrete_pivot.sql
+
+psql -d $1 -f ${POSTGIS_SRC}/lwpostgis.sql
+
+psql -d $1 -f ${POSTGIS_SRC}/spatial_ref_sys.sql
+
+psql -d $1 -f discrete_pivot.sql
