@@ -13,8 +13,8 @@ gp.CheckOutExtension("spatial")                                 # Check out the 
 gp.overwriteoutput = 1                                          # Overwrite existing files
 
 # WCS URL for downloading SRTM90 tiles
-wcsUrl = 'http://cabrillo.nceas.ucsb.edu:8080/cgi-bin/mapserv?map=/opt/geodev/mapserver/srtm.map' \
-         '&Version=1.0.0&request=GetCoverage&Coverage=srtm&service=WCS&CRS=EPSG:4326&Format='     \
+wcsUrl = 'http://ebm.nceas.ucsb.edu/cgi-bin/mapserv?map=/maps/srtm_90m.map' \
+         '&Version=1.0.0&request=GetCoverage&Coverage=srtm&service=WCS&CRS=EPSG:4326&Format=' \
          'image/geotiffint16&resx=0.0008333333&resy=0.0008333333&BBOX='
 
 # input coordinates: inputUlx inputUly inputLlx inputLly, ex: -124 40 -122 42
