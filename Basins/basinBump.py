@@ -12,10 +12,18 @@
 #                basinBump.py eu c:\dev\eu\eu_ult_clip c:\dev\eu\mods c:\dev\eu\build_try1
 
 # Import system modules
-import sys, string, os, win32com.client
+import sys, string, os
+
+# Create the geoprocessor object
+try:
+    import arcgisscripting
+    gp = arcgisscripting.create()
+
+except:
+    import win32com.client
+    gp = win32com.client.Dispatch("esriGeoprocessing.GpDispatch.1") 
 
 # Geoprocessor configuration
-gp = win32com.client.Dispatch("esriGeoprocessing.GpDispatch.1") # Create the geoprocessor object
 gp.CheckOutExtension("spatial")                                 # Check out the required license
 gp.overwriteoutput = 1                                          # Overwrite existing files
 
@@ -55,7 +63,8 @@ for mod in modElem:
 gp.extent   = inElem['DEM']
 gp.cellsize = inElem['DEM']
 
-print inElem
+# debug:
+# print inElem
 
 # output data
 infill_0 = paths['out'] + '_if0'
@@ -76,12 +85,12 @@ combine = paths['out'] + '_dem'
 
 try:
     print "Rasterizing fill-in (area)"
-    gp.FeatureToRaster_conversion(inElem['fill_area'], 1, infill_0, gp.cellsize)
+    gp.FeatureToRaster_conversion(inElem['fill_area'], 1000, infill_0, gp.cellsize)
     gp.SingleOutputMapAlgebra_sa("con( isnull( %s ), %s, %s)" % \
                                  (inElem['DEM'], infill_0, inElem['DEM']), infill_1)
 
     print "Rasterizing fills (point)"
-    gp.FeatureToRaster_conversion(inElem['fill'], 1, fill_0, gp.cellsize)
+    gp.FeatureToRaster_conversion(inElem['fill'], 1000, fill_0, gp.cellsize)
     gp.SingleOutputMapAlgebra_sa("con( isnull( %s ), %s, %s)" % \
                                 (infill_1, fill_0, infill_1), fill_1)
     

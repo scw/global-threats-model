@@ -26,6 +26,7 @@
 &s fdir   [entryname %prefix%_fdir]
 &s bas    [entryname %prefix%_bas]
 &s basnib [entryname %prefix%_bas_n]
+&s fdepth [entryname %prefix%_fdepth]
 &s dem    [pathname %dem%]
 &s dm     [substr [entryname %dem%] 1 6]
 &if not [null %zlimit%] and [type %zlimit%] gt 0 ~
@@ -47,7 +48,10 @@ verify off
 setwindow %dem%
 fill %dem% %filled% # %zlimit% %fdir%
 /*
-/* flowacc
+/* fill depth
+%fdepth% = %filled% - %dem%
+/*
+/* flow accumlation
 %facc% = flowaccumulation(%fdir%)
 /*
 /* basins
