@@ -9,6 +9,7 @@
 
 &arg dem zlimit plimit prefix
 &severity &error &routine error
+&s msgsave
 &s vrfsave
 /*
 /* check current program
