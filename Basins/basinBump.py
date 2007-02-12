@@ -69,8 +69,10 @@ gp.cellsize = inElem['DEM']
 # output data
 infill_0 = paths['out'] + '_if0'
 infill_1 = paths['out'] + '_if1'
+infill_2 = paths['out'] + '_if2'
 fill_0 = paths['out'] + '_fi0'
 fill_1 = paths['out'] + '_fi1'
+fill_2 = paths['out'] + '_fi2'
 innulls_0 = paths['out'] + '_in0'
 innulls_1 = paths['out'] + '_in1'
 innulls_2 = paths['out'] + '_in2'
@@ -86,13 +88,15 @@ combine = paths['out'] + '_dem'
 try:
     print "Rasterizing fill-in (area)"
     gp.FeatureToRaster_conversion(inElem['fill_area'], 1000, infill_0, gp.cellsize)
+    gp.Plus_sa(infill_0, 1000, infill_1)
     gp.SingleOutputMapAlgebra_sa("con( isnull( %s ), %s, %s)" % \
-                                 (inElem['DEM'], infill_0, inElem['DEM']), infill_1)
+                                 (inElem['DEM'], infill_1, inElem['DEM']), infill_2)
 
     print "Rasterizing fills (point)"
     gp.FeatureToRaster_conversion(inElem['fill'], 1000, fill_0, gp.cellsize)
+    gp.Plus_sa(fill_0, 1000, fill_1)
     gp.SingleOutputMapAlgebra_sa("con( isnull( %s ), %s, %s)" % \
-                                (infill_1, fill_0, infill_1), fill_1)
+                                (infill_2, fill_1, infill_2), fill_2)
     
     print "Rasterizing nulls (area)"
     gp.FeatureToRaster_conversion(inElem['null_area'], 0, innulls_0, gp.cellsize)
@@ -119,7 +123,7 @@ try:
     print "Combining layers into one modified DEM"
     # Process: Single Output Map Algebra...
     gp.SingleOutputMapAlgebra_sa("con(isnull(%s), 0, 200) + con(isnull(%s), 0, -400) + %s + %s + %s" %  \
-                                 (break_0, burn_0, nulls_3, innulls_3, fill_1), combine)
+                                 (break_0, burn_0, nulls_3, innulls_3, fill_2), combine)
 
     print "Building Pyrimids"
     # Process: Build Pyramids...
