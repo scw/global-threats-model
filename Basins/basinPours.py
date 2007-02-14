@@ -7,7 +7,7 @@
 
 
 # Import system modules
-import sys, string, os, win32com.client
+import sys, string, os, arcgisscripting
 
 # Geoprocessor configuration
 gp = win32com.client.Dispatch("esriGeoprocessing.GpDispatch.1") # Create the geoprocessor object
