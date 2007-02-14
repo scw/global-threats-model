@@ -7,10 +7,18 @@
 
 
 # Import system modules
-import sys, string, os, arcgisscripting
+import sys, string, os
+
+# Create the geoprocessor object
+try:
+    import arcgisscripting
+    gp = arcgisscripting.create()
+
+except:
+    import win32com.client
+    gp = win32com.client.Dispatch("esriGeoprocessing.GpDispatch.1") 
 
 # Geoprocessor configuration
-gp = win32com.client.Dispatch("esriGeoprocessing.GpDispatch.1") # Create the geoprocessor object
 gp.CheckOutExtension("spatial")                                 # Check out the required license
 gp.overwriteoutput = 1                                          # Overwrite existing files
 
