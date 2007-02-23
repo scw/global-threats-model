@@ -10,11 +10,10 @@ import sys, string, os, win32com.client
 gp = win32com.client.Dispatch("esriGeoprocessing.GpDispatch.1")                  # Create the Geoprocessor object
 gp.Overwriteoutput = 1                                                           # Overwrite existing files
 gp.CheckOutExtension("spatial")                                                  # Check out any necessary licenses
-gp.AddToolbox("F:/gis/a9/ArcGIS/ArcToolbox/Toolboxes/Spatial Analyst Tools.tbx") # Load required toolboxes...
 
 # Script arguments...
 if len(sys.argv) == 1:
-  print "Usage: reproject_laea <input_file> <output dir> <output prefix>"
+  print "Usage: reproject_laea <input_file>"
   sys.exit()
 
 # assumes WGS84 input. Could improve checking.
@@ -60,8 +59,8 @@ def project_to_laea (inputFeature):
 
         # Process : Project
         baseName = inputDir + '\\' + inputBase + '_' + contShort
-        laeaName = inputBase[:5] + '_' + contShort + '_laea' + ext
-        clipName = inputBase[:5] + '_' + contShort + ext
+        laeaName = contShort + '_' + inputBase[:6] + '_lae' + ext
+        clipName = contShort + '_' + inputBase[:6] + ext
         contName = continentPath + contName + '.shp'
         dsDesc2 = gp.Describe(inputFile)
         dsType2 = str(dsDesc.DataSetType)
@@ -76,11 +75,10 @@ def project_to_laea (inputFeature):
             else:
                 
                 print "projecting %s..." % laeaName
-                gp.projectRaster(inputFile, laeaName, projectionString, "BILINEAR", cellsize)
+                gp.projectRaster(inputFile, laeaName, projectionString, "NEAREST", cellsize)
                 print "extracting by mask..."
                 gp.ExtractByMask_sa(laeaName, contName, clipName)
         except:
             print "error: " + gp.GetMessages()
     
-
 project_to_laea(sys.argv[1])
