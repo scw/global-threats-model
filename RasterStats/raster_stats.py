@@ -270,6 +270,8 @@ def getContinuousRasters(options):
             'stats':      'avg median stdev min max',
             'band':       1 }    
 
+    imperv = { 'path':    "%s/impervious/%s
+
     crl = [wb, fertc, srtm, rusle, rusle2, k, glac, pestc, treecv, footp, \
            resdp, soildeg, wild, temp, tempr, wetdays, pet, precip, \
            humidity, slope, irr]
