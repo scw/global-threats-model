@@ -266,15 +266,14 @@ def getContinuousRasters(options):
             'band':       1 }
 
     impervious ={'path':       "%s/impervious/%s_impv/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
-            'name':       'impervious',
+            'name':       'imperv',
             'stats':      'avg median stdev min max',
             'band':       1 }    
 
-    imperv = { 'path':    "%s/impervious/%s
-
     crl = [wb, fertc, srtm, rusle, rusle2, k, glac, pestc, treecv, footp, \
            resdp, soildeg, wild, temp, tempr, wetdays, pet, precip, \
-           humidity, slope, irr]
+           humidity, slope, irr, nl1992, nl1993, nl1994, nl1995, nl1996, \
+           nl1997, nl1998, nl1999, nl2000, nl2001, nl2002, nl2003, impervious]
     return crl
 
 def getVectors(options):
