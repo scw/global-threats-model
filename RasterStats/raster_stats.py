@@ -205,6 +205,71 @@ def getContinuousRasters(options):
             'stats':      'avg median stdev min max',
             'band':       1 }
 
+    nl1992 ={'path':       "%s/lights_1992/%s_nl1992/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'nl1992',
+            'stats':      'avg median stdev min max',
+            'band':       1 }
+
+    nl1993 ={'path':       "%s/lights_1993/%s_nl1993/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'nl1993',
+            'stats':      'avg median stdev min max',
+            'band':       1 }
+
+    nl1994 ={'path':       "%s/lights_1994/%s_nl1994/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'nl1994',
+            'stats':      'avg median stdev min max',
+            'band':       1 }
+
+    nl1995 ={'path':       "%s/lights_1995/%s_nl1995/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'nl1995',
+            'stats':      'avg median stdev min max',
+            'band':       1 }
+
+    nl1996 ={'path':       "%s/lights_1996/%s_nl1996/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'nl1996',
+            'stats':      'avg median stdev min max',
+            'band':       1 }
+
+    nl1997 ={'path':       "%s/lights_1997/%s_nl1997/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'nl1997',
+            'stats':      'avg median stdev min max',
+            'band':       1 }
+
+    nl1998 ={'path':       "%s/lights_1998/%s_nl1998/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'nl1998',
+            'stats':      'avg median stdev min max',
+            'band':       1 }
+
+    nl1999 ={'path':       "%s/lights_1999/%s_nl1999/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'nl1999',
+            'stats':      'avg median stdev min max',
+            'band':       1 }
+
+    nl2000 ={'path':       "%s/lights_2000/%s_nl2000/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'nl2000',
+            'stats':      'avg median stdev min max',
+            'band':       1 }
+
+    nl2001 ={'path':       "%s/lights_2001/%s_nl2001/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'nl2001',
+            'stats':      'avg median stdev min max',
+            'band':       1 }
+
+    nl2002 ={'path':       "%s/lights_2002/%s_nl2002/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'nl2002',
+            'stats':      'avg median stdev min max',
+            'band':       1 }
+
+    nl2003 ={'path':       "%s/lights_2003/%s_nl2003/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'nl2003',
+            'stats':      'avg median stdev min max',
+            'band':       1 }
+
+    impervious ={'path':       "%s/impervious/%s_impv/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'impervious',
+            'stats':      'avg median stdev min max',
+            'band':       1 }    
+
     crl = [wb, fertc, srtm, rusle, rusle2, k, glac, pestc, treecv, footp, \
            resdp, soildeg, wild, temp, tempr, wetdays, pet, precip, \
            humidity, slope, irr]
