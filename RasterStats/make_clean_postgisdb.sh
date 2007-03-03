@@ -5,8 +5,8 @@ if [ $# -ne 1 ]; then
   exit
 fi
 
-export POSTGIS_SRC=/usr/share/postgresql/8.1/contrib/postgis-1.1.2
-export USER=perry
+export POSTGIS_SRC=/usr/local/src/postgis-1.2.1/
+export USER=postgres
 
 dropdb $1 
 

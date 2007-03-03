@@ -13,17 +13,19 @@
 
 import os, sys, psycopg2
 
-debug = False
-if debug:
-   print "DEBUG MODE.. nothing will happen"
-
 try:
     continent = sys.argv[1]
     db = sys.argv[2]
+    if sys.argv[3] == '--dry-run':
+      debug = True
+      print "DEBUG MODE.. nothing will happen"
+    else:
+      debug = False
+
 except:
-    print "raster_stats.py [continent-abbreviation] [database-name]*"
+    print "raster_stats.py [continent-abbreviation] [database-name]* {--dry-run}"
     print " * [database-name] must already exist and have postgis and discrete_pivot functions"
-    print 
+    print " --dry-run:  runs script without actually calculating the outputs " 
     print " Make sure to edit the options that are hardcoded in this script !!"
     sys.exit(1) 
 
@@ -278,10 +280,10 @@ def getContinuousRasters(options):
 
 def getVectors(options):
     # basin_id field MUST exist in both the pour point and the basins
-    basins = {'path':  "%s/%s_basins.shp" % (options['vectorPath'],options['tablePrefix']),
-             'pourpath':  "%s/%s_pours.shp" % (options['vectorPath'],options['tablePrefix']),
+    basins = {'path':    "%s/%s_basins.shp" % (options['vectorPath'],options['tablePrefix']),
+             'pourpath': "%s/%s_pours.shp" % (options['vectorPath'],options['tablePrefix']),
              'name':     'bsn',
-             'pourname':     'pour',
+             'pourname': 'pour',
              'idfield':  'basin_id'} 
 
     gtn =   {'path':    "%s/%s_gtn.shp" % (options['vectorPath'],options['tablePrefix']),
