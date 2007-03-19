@@ -92,7 +92,7 @@ def processCategory(c,basin_id,value):
     plume = 'plume_cat' + str(c)
 
     # Calculate cost distance
-    cmd = "r.cost -k input=ocean_sub max_cost=%s output=%s start_rast=%s_rast%s" % \
+    cmd = "r.cost -k input=ocean max_cost=%s output=%s start_rast=%s_rast%s" % \
           (maxdist, cost, pours, c) 
     os.popen(cmd)
     #print cmd
