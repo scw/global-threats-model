@@ -49,7 +49,7 @@ def processCategory(c,basin_id,value):
     print " Processing category ", c
     print
     log.write("%s,%s,%s\n" % (c, basin_id, value))
-    if value == '0' || value == '':
+    if value == '0' or value == '':
         log.write("%s has a value of 0, skipping.\n" % basin_id)
         log.flush()
         return
