@@ -55,6 +55,7 @@ def processCategory(c,basin_id,value):
         return
     cmd = 'g.region rast=ocean'
     os.popen(cmd)
+    print "value is `%s' of type %s" % (value, type(value))
     value_float = float(value)
     value_int = int(value_float)
     # Extract the single point
