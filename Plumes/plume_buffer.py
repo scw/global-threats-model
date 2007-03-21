@@ -36,8 +36,8 @@ def cleanHouse(vector,catlist):
     for c in catlist:
         cmd = "g.remove vect=%s_cat%s" % (vector, c)
         os.popen(cmd)
-        cmd = "g.remove rast=%s_rast%s,cost_cat%s,dw_cat%s,plume_cat%s,buf_%s" % \
-               (vector, c, c, c, c, c)
+        cmd = "g.remove rast=%s_rast%s,%s_buff_rast%s,cost_cat%s" % \
+              (vector, c, vector, c, c)
         os.popen(cmd)
 
     return True
@@ -53,15 +53,13 @@ def processCategory(c,basin_id,value):
         log.write("%s has a value of 0, skipping.\n" % basin_id)
         log.flush()
         return
-    
     cmd = 'g.region rast=ocean'
     os.popen(cmd)
-
-    value = float( value )
-     
+    value_float = float(value)
+    value_int = int(value_float)
     # Extract the single point
     cmd = 'v.extract input=%s output=%s_cat%s where="cat = %s" new=%s' % \
-           (pours, pours, c, c, int(value))    
+           (pours, pours, c, c, value_int)
     os.popen(cmd)
 
     # subset region down to the widest possible buffer map
@@ -84,7 +82,11 @@ def processCategory(c,basin_id,value):
 
     # Convert to raster 
     cmd = "v.to.rast input=%s_cat%s output=%s_rast%s use=cat" % \
-           (pours, c, pours, c)    
+           (pours, c, pours, c)
+    os.popen(cmd)
+
+    cmd ="r.buffer input=%s_rast%s out=%s_buff_rast%s distances=3.5 " \
+         "units=kilometers" % (pours, c, pours, c)
     os.popen(cmd)
 
     dw = 'dw_cat' + str(c)
@@ -92,10 +94,9 @@ def processCategory(c,basin_id,value):
     plume = 'plume_cat' + str(c)
 
     # Calculate cost distance
-    cmd = "r.cost -k input=ocean max_cost=%s output=%s start_rast=%s_rast%s" % \
-          (maxdist, cost, pours, c) 
+    cmd = "r.cost -k input=ocean max_cost=%s output=%s start_rast=%s_buff_rast%s" % \
+          (maxdist, cost, pours, c)
     os.popen(cmd)
-    #print cmd
 
     # Mask out non-ocean cells
     cmd = 'r.mapcalc %s = "if( ocean >= 0, %s)"' % (dw,cost) 
@@ -104,10 +105,10 @@ def processCategory(c,basin_id,value):
     # Area Weighted distribution of sediment 
     cmd = 'r.stats -c %s' % dw
     area_info = os.popen(cmd).read().rstrip().split('\n')
-    #print area_info
+
     area_list = [i.split(' ') for i in area_info][:-1]
 
-    init = float(value)
+    init = value_float
     pct = 0.005 # percentage of material deposited at each buffer ring
     reclass_string = ""
 
@@ -134,6 +135,9 @@ def processCategory(c,basin_id,value):
         percell = int(round(percell))
         # if the pour would be empty, force all the values to the first distance
         if (dist == '1' and percell == 0):
+            if init == 0:
+                break
+            print "count: %s init: %i" % (count, init)
             percell = int(float(count)/init)
             if percell > 0:
                 log.write("%s hits empty at dist one, assigning %i to dist one.\n" % (basin_id, percell))
@@ -153,16 +157,9 @@ def processCategory(c,basin_id,value):
     
     # Reclass the dw map and recreate the plume map
     cmd = "r.reclass input=%s output=%s <<EOF \n%sEOF" % (dw,plume,reclass_string)
-    #print cmd
     os.popen(cmd)
 
     # Clean up
-    cmd = "g.remove rast=%s_rast%s,costk_cat%s,dw_cat%s,buf_%s" % \
-           (pours, c, c, c, c)
-    os.popen(cmd)
-
-    cmd = "g.remove vect=%s_cat%s" % (pours, c)
-    os.popen(cmd)
     log.flush()
 
 def addPlumes(outputFile):
