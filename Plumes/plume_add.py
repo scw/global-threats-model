@@ -9,13 +9,14 @@ def getArgs():
     try:
         filename = sys.argv[1]
         prefix = filename.split('.')[0] # file prefix only 
-        return prefix
+        attribute = sys.argv[2]
+        return prefix, attribute
     except:
-        print sys.argv[0] + " usage: <output filename>"
+        print sys.argv[0] + " usage: <output filename> <attribute>"
         sys.exit(1)
 
 ###############################################
 if __name__ == '__main__':
 
-    prefix = getArgs()
-    addPlumes("%s.img" % prefix)
+    prefix, attribute = getArgs()
+    addPlumes("%s.img" % prefix, attribute)
