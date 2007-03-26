@@ -23,7 +23,6 @@ def getArgs():
             attribs = ['SUM_IMPV','SUM_PESTC','SUM_FERTC']
         return vnamevname,attribs
     except:
-        print sys.exc_info()[0]
         print sys.argv[0] + " usage: <vname name> {attribute}"
         sys.exit(1)
 
@@ -59,12 +58,14 @@ def getCatList(vname,attribs):
 
     return catlist
 
-def cleanHouse(vname,catlist):
-    for c in catlist:
-        cmd = "g.remove vect=%s_cat%s" % (vname, c)
+def cleanHouse(vname,attribs):
+    for a in attribs:
+        basin_id = a['basin_id']
+        rasters  = ['%s%s%s' % (vname, r, basin_id) for r in ['_', '_dw_', '_buff_', '_cost_']]
+        cmd = "g.remove vect=%s_cat%s" % (vname, basin_id)
         os.popen(cmd)
-        cmd = "g.remove rast=%s_rast%s,%s_buff_rast%s,cost_cat%s" % \
-              (vname, c, vname, c, c)
+        
+        cmd = "g.remove rast%s" % (','.join(rasters))
         os.popen(cmd)
 
     return True
@@ -214,12 +215,13 @@ def processCategory(c, c_data, vname, log):
     # Clean up
     log.flush()
 
-def addPlumes(outputFile):
+def addPlumes(outputFile, column):
     cmd = "g.gisenv"
     lines = os.popen(cmd).read().rstrip().replace("'","").replace(';','').split("\n")
     output = [i.split('=') for i in lines]
     path = "%s/%s/%s/cellhd/" % (output[0][1],output[1][1],output[2][1])
-    cmd = "ls -1 %s | grep plume_cat" % path
+
+    cmd = "ls -1 %s | grep plume_%" % (path, column)
     plumenames = os.popen(cmd).read().strip().split('\n')
     plumes = []
     for pn in plumenames:
@@ -263,5 +265,8 @@ if __name__ == '__main__':
         #log.write("%s,%s,%s\n" % (cat,catlist[cat][0],catlist[cat][1]))
         i = i + 1
 
-    # addPlumes("%s_%s_total.img" % (vname, attrib))
+    """
+    for att in attrib:
+        addPlumes("%s_%s_total.img" % (vname, att), att)
+    """
     log.close()
