@@ -20,7 +20,7 @@ pours <- read.dbf("pours_distribution_v2.dbf")
 print ("Threshold values")
 print ("----------------")
 print ("Fertilizer (MT/yr):")
-classes<-c(0.05,0.10,0.25,0.50,0.75)
+classes<-c(0.0005, 0.05,0.10,0.25,0.50,0.75)
 fert<-ifelse(pours$SUM_FERTC == 0, NA, pours$SUM_FERTC)
 quantile(sort(fert), prob=classes)
 

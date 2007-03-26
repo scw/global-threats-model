@@ -192,7 +192,7 @@ class file_info:
         s_fh = gdal.Open( self.filename )
 
         return \
-            raster_add( s_fh, sw_xoff, sw_yoff, sw_xsize, sw_ysize, s_band,
+            raster_add( s_fh, sw_xoff, sw_yoff, sw_xsize, sw_ysize, s_band,  
                          t_fh, tw_xoff, tw_yoff, tw_xsize, tw_ysize, t_band,
                          nodata_arg )
 
@@ -345,7 +345,7 @@ if __name__ == '__main__':
 
     # Try opening as an existing file.
     gdal.PushErrorHandler( 'CPLQuietErrorHandler' )
-    t_fh = gdal.Open( out_file, gdal.GA_ReadOnly )
+    t_fh = gdal.Open( out_file, gdal.GA_Update)
     gdal.PopErrorHandler()
     
     # Create output file if it does not already exist.
