@@ -221,7 +221,7 @@ def addPlumes(outputFile, column):
     output = [i.split('=') for i in lines]
     path = "%s/%s/%s/cellhd/" % (output[0][1],output[1][1],output[2][1])
 
-    cmd = "ls -1 %s | grep plume_%" % (path, column)
+    cmd = "ls -1 %s | grep plume_%s" % (path, column)
     plumenames = os.popen(cmd).read().strip().split('\n')
     plumes = []
     for pn in plumenames:
