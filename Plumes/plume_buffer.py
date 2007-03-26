@@ -58,14 +58,14 @@ def getCatList(vname,attribs):
 
     return catlist
 
-def cleanHouse(vname,attribs):
-    for a in attribs:
-        basin_id = a['basin_id']
+def cleanHouse(vname,categories):
+    for (c, c_data) in categories.items():
+        basin_id = c_data['basin_id']
         rasters  = ['%s%s%s' % (vname, r, basin_id) for r in ['_', '_dw_', '_buff_', '_cost_']]
-        cmd = "g.remove vect=%s_cat%s" % (vname, basin_id)
+        cmd = "g.remove vect=%s_%s" % (vname, basin_id)
         os.popen(cmd)
         
-        cmd = "g.remove rast%s" % (','.join(rasters))
+        cmd = "g.remove rast=%s" % (','.join(rasters))
         os.popen(cmd)
 
     return True
@@ -269,4 +269,5 @@ if __name__ == '__main__':
     for att in attrib:
         addPlumes("%s_%s_total.img" % (vname, att), att)
     """
+    cleanHouse(vname, categories)
     log.close()
