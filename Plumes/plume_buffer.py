@@ -72,7 +72,9 @@ def cleanHouse(vname,categories):
 
 def getMaxDist(max):
     # exponents to distance mappings
-    exp_distances = { -3 : 10,
+    exp_distances = { -5 : 5,
+                      -4 : 10,
+                      -3 : 10,
                       -2 : 80,
                       -1 : 120,
                        0 : 200,
