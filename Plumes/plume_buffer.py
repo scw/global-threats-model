@@ -248,14 +248,14 @@ def addPlumes(outputFile, column):
         cmd = "./gdal_add.py -o %s.img -ot Float32 -of HFA -init 0 %s " % \
               (id, ' '.join(plumes[start:end]) )
         print cmd
-        #os.popen(cmd)
+        os.popen(cmd)
 
     cmd = "./gdal_add.py -o %s -ot Float32 -of HFA -init 0 %s " % \
           (outputFile, ' '.join(tempids))
     print "================================================="
     print " Adding all plumes into a single grid"
     print cmd
-    #os.popen(cmd)
+    os.popen(cmd)
 
 if __name__ == '__main__':
     vname, attrib = getArgs()
