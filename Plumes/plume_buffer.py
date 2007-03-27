@@ -12,6 +12,7 @@ Authors: Matthew T. Perry, Shaun C. Walbridge
 import sys
 import os
 import math
+import glob
 
 def getArgs():
     try:
@@ -235,33 +236,26 @@ def processCategory(c, c_data, vname, log):
     log.flush()
 
 def addPlumes(outputFile, column):
-    path = getPath()
-
-    cmd = "ls -1 %s | grep plume_%s" % (path, column)
-    plumenames = os.popen(cmd).read().strip().split('\n')
-    plumes = []
-    for pn in plumenames:
-        plumes.append(path + pn)
-
+    plumes = glob.glob("%s/plume_%s*" % (getPath(), column))
     pl = len(plumes)
     batchcount = 500
     tempids = []
     for i in range(0,pl,batchcount):
         start = i
         end = i + batchcount
-        #print plumes[start:end]
         id = "plume" + str(start) + str(end)
         tempids.append(id + ".img")
         cmd = "./gdal_add.py -o %s.img -ot Float32 -of HFA -init 0 %s " % \
               (id, ' '.join(plumes[start:end]) )
-        os.popen(cmd)
+        print cmd
+        #os.popen(cmd)
 
     cmd = "./gdal_add.py -o %s -ot Float32 -of HFA -init 0 %s " % \
           (outputFile, ' '.join(tempids))
     print "================================================="
     print " Adding all plumes into a single grid"
     print cmd
-    os.popen(cmd)
+    #os.popen(cmd)
 
 if __name__ == '__main__':
     vname, attrib = getArgs()
@@ -280,7 +274,6 @@ if __name__ == '__main__':
         processCategory(c, c_data, vname, log)
         #log.write("%s,%s,%s\n" % (cat,catlist[cat][0],catlist[cat][1]))
         i = i + 1
-
     """
     for att in attrib:
         addPlumes("%s_%s_total.img" % (vname, att), att)

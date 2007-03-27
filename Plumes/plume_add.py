@@ -1,14 +1,12 @@
 #!/usr/bin/env python 
 import sys
-import os
-import math
 
 from plume_buffer import addPlumes
 
 def getArgs():
     try:
         filename = sys.argv[1]
-        prefix = filename.split('.')[0] # file prefix only 
+        prefix = filename.split('.')[0] # prefix only 
         attribute = sys.argv[2]
         return prefix, attribute
     except:
