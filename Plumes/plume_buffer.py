@@ -61,7 +61,8 @@ def getCatList(vname,attribs):
 def cleanHouse(vname,categories):
     for (c, c_data) in categories.items():
         basin_id = c_data['basin_id']
-        rasters  = ['%s%s%s' % (vname, r, basin_id) for r in ['_', '_dw_', '_buff_', '_cost_']]
+        rasters  = ['%s%s%s' % (vname, r, basin_id) for \
+                   r in ['_', '_buff_', '_cost_']] # '_dw_'
         cmd = "g.remove vect=%s_%s" % (vname, basin_id)
         os.popen(cmd)
         
@@ -70,6 +71,20 @@ def cleanHouse(vname,categories):
 
     return True
 
+def getEnv():
+    cmd = "g.gisenv"
+    lines = os.popen(cmd).read().rstrip().replace("'","").replace(';','').split("\n")
+    env = {}
+    for o in [i.split('=') for i in lines]:
+        env[o[0]] = o[1]
+
+    return env
+
+def getPath():
+    # return raster path
+    env = getEnv()
+    return "%s/%s/%s/cellhd/" % (env['GISDBASE'],env['LOCATION_NAME'],env['MAPSET'])
+    
 def getMaxDist(max):
     # exponents to distance mappings
     exp_distances = { -5 : 5,
@@ -140,7 +155,6 @@ def processCategory(c, c_data, vname, log):
            region[pv[0]] = float(pv[1])
 
     # Extend region based on input value
-    # TODO: confirm correctness in all 4 quadrants
     cellsize = region['nsres']
     regionbuff = cellsize * maxdist
     n = region['n'] + regionbuff
@@ -215,13 +229,13 @@ def processCategory(c, c_data, vname, log):
         os.popen(cmd)
 
     # Clean up
+    tmp = {}
+    tmp[c] = c_data
+    cleanHouse(vname, tmp)
     log.flush()
 
 def addPlumes(outputFile, column):
-    cmd = "g.gisenv"
-    lines = os.popen(cmd).read().rstrip().replace("'","").replace(';','').split("\n")
-    output = [i.split('=') for i in lines]
-    path = "%s/%s/%s/cellhd/" % (output[0][1],output[1][1],output[2][1])
+    path = getPath()
 
     cmd = "ls -1 %s | grep plume_%s" % (path, column)
     plumenames = os.popen(cmd).read().strip().split('\n')
@@ -271,5 +285,4 @@ if __name__ == '__main__':
     for att in attrib:
         addPlumes("%s_%s_total.img" % (vname, att), att)
     """
-    cleanHouse(vname, categories)
     log.close()
