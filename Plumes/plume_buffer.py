@@ -243,6 +243,8 @@ def processCategory(c, c_data, vname, log):
 
 def addPlumes(outputFile, column):
     plumes = glob.glob("%s/plume_%s*" % (getPath(), getName(column)))
+    (name, ext) = os.path.splitext(outputFile)
+
     pl = len(plumes)
     if pl == 0:
         print "No data found for column %s" % column
@@ -253,7 +255,7 @@ def addPlumes(outputFile, column):
     for i in range(0,pl,batch):
         start = i 
         end = i + batch - 1 # don't double count edges
-        id = "plume_%s_%s" % (start, end)
+        id = "plume_%s_%s_%s" % (name, start, end)
         tempids.append("%s.img" % id)
         cmd = "./gdal_add.py -o %s.img -ot Float32 -of HFA -init 0 %s " % \
               (id, ' '.join(plumes[start:end]) )
@@ -266,6 +268,9 @@ def addPlumes(outputFile, column):
     print " Adding all plumes into a single grid"
     print cmd
     os.popen(cmd)
+
+    for id in tempids:
+        os.remove(id)
 
 if __name__ == '__main__':
     vname, attrib = getArgs()

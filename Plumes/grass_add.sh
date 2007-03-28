@@ -12,4 +12,5 @@ echo "Processing ${i}..."
 r.mapcalc plume_temp = "plume_try2 + if( isnull(${i}), 0, ${i} )" 
 g.remove rast=plume_try2 > /dev/null 2>&1
 g.rename rast=plume_temp,plume_try2 > /dev/null 2>&1
+rm plume_raster.list
 done
