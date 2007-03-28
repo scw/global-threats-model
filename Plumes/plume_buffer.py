@@ -137,16 +137,17 @@ def processCategory(c, c_data, vname, log):
     
     # HACK: test for existing pours for restarting semi-complete jobs
     # don't use g.mlist as it drags ass
+    plumes_create = []
     plumes = [os.path.basename(g) for g in glob.glob('%s/plume_*_%s' % (getPath(), basin_id))]
 
     for col in columns.keys():
         pn = 'plume_%s_%s' % (col, basin_id)
-        if pn in plumes:
-            plumes.remove(pn)
+        if pn not in plumes:
+            plumes_create.append(pn)
 
-    if len(plumes) == 0:
-        print " Plumes exist for %s, skipping.\n" % basin_id
-        log.write("%s: all plumes exist, skipping.")
+    if len(plumes_create) == 0:
+        print "\n Plumes exist for %s, skipping.\n" % basin_id
+        log.write("%s: all plumes exist, skipping." % basin_id)
         return
 
     print "\n Processing basin %s \n" % basin_id
