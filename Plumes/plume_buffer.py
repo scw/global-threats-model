@@ -28,10 +28,6 @@ def getArgs():
         sys.exit(1)
 
 def getCatList(vname,attribs):
-    # map column names to clean ones
-    names = {'SUM_FERTC': 'fert',
-             'SUM_PESTC': 'pest',
-             'SUM_IMPV' : 'impv'}
     catlist = {}
 
     cmd = "v.db.select -c map=%s column=cat,basin_id,%s" % (vname,','.join(attribs))
@@ -47,7 +43,7 @@ def getCatList(vname,attribs):
             catlist[cat]['max'] = float(pair[2])
         else:
             for i in range(len(attribs)):
-                name = names[attribs[i]]
+                name = getName(attribs[i])
                 # find max value
                 if catlist[cat].has_key('max'):
                     catlist[cat]['max'] = max(float(pair[i+2]),   \
@@ -71,6 +67,16 @@ def cleanHouse(vname,categories):
         os.popen(cmd)
 
     return True
+
+def getName(name):
+    # map column names to clean ones
+    names = {'SUM_FERTC': 'fert',
+             'SUM_PESTC': 'pest',
+             'SUM_IMPV' : 'impv'}
+    if names.has_key(name):
+        return names[name]
+    else:
+        return name
 
 def getEnv():
     cmd = "g.gisenv"
@@ -236,18 +242,22 @@ def processCategory(c, c_data, vname, log):
     log.flush()
 
 def addPlumes(outputFile, column):
-    plumes = glob.glob("%s/plume_%s*" % (getPath(), column))
+    plumes = glob.glob("%s/plume_%s*" % (getPath(), getName(column)))
     pl = len(plumes)
-    batchcount = 500
+    if pl == 0:
+        print "No data found for column %s" % column
+        return False
+
+    batch = 60
     tempids = []
-    for i in range(0,pl,batchcount):
-        start = i
-        end = i + batchcount
-        id = "plume" + str(start) + str(end)
-        tempids.append(id + ".img")
+    for i in range(0,pl,batch):
+        start = i 
+        end = i + batch - 1 # don't double count edges
+        id = "plume_%s_%s" % (start, end)
+        tempids.append("%s.img" % id)
         cmd = "./gdal_add.py -o %s.img -ot Float32 -of HFA -init 0 %s " % \
               (id, ' '.join(plumes[start:end]) )
-        print cmd
+        print id
         os.popen(cmd)
 
     cmd = "./gdal_add.py -o %s -ot Float32 -of HFA -init 0 %s " % \
