@@ -137,7 +137,8 @@ def processCategory(c, c_data, vname, log):
     
     # HACK: test for existing pours for restarting semi-complete jobs
     # don't use g.mlist as it drags ass
-    plumes = glob.glob('%s/plume_*_%s' % (getPath(), basin_id)
+    plumes = glob.glob('%s/plume_*_%s' % (getPath(), basin_id))
+
     for col in columns.keys():
         pn = 'plume_%s_%s' % (col, basin_id)
         if pn in plumes:
