@@ -59,7 +59,7 @@ def cleanHouse(vname,categories):
     for (c, c_data) in categories.items():
         basin_id = c_data['basin_id']
         rasters  = ['%s%s%s' % (vname, r, basin_id) for \
-                   r in ['_', '_buff_', '_cost_']] # '_dw_'
+                   r in ['_', '_buff_', '_cost_', '_dw_']]
         cmd = "g.remove vect=%s_%s" % (vname, basin_id)
         os.popen(cmd)
         
@@ -242,7 +242,7 @@ def processCategory(c, c_data, vname, log):
     log.flush()
 
 def addPlumes(outputFile, column):
-    plumes = glob.glob("%s/plume_%s*" % (getPath(), getName(column)))
+    plumes = glob.glob("%s/plume_%s*" % (getPath(), column))
     (name, ext) = os.path.splitext(outputFile)
 
     pl = len(plumes)
@@ -269,8 +269,8 @@ def addPlumes(outputFile, column):
     print cmd
     os.popen(cmd)
 
-    for id in tempids:
-        os.remove(id)
+    #for id in tempids:
+    #    os.remove(id)
 
 if __name__ == '__main__':
     vname, attrib = getArgs()
