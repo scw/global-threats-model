@@ -11,17 +11,22 @@
    hostname:port:database:username:password 
 """
 
-import os, sys, psycopg2
+import os, sys, psycopg2, getopt
 
 try:
+    opts, args = getopt.getopt(sys.argv[3:], "dv", ['dry-run', 'verbose'])
+    
     continent = sys.argv[1]
     db = sys.argv[2]
-    if sys.argv[3] == '--dry-run':
-      debug = True
-      print "DEBUG MODE.. nothing will happen"
-    else:
-      debug = False
+    debug = False
+    verbose = False
 
+    for o, a in opts:
+        if o in ('-d', '--dry-run'):
+            debug = True
+            print "Debug mode enabled. No output will be written."
+        if o in ('-v', '--verbose'):
+            verbose = True
 except:
     print "raster_stats.py [continent-abbreviation] [database-name]* {--dry-run}"
     print " * [database-name] must already exist and have postgis and discrete_pivot functions"
@@ -192,7 +197,7 @@ def getContinuousRasters(options):
             'stats':      'avg median sum min max',
             'band':       1 }
 
-    precip ={'path':       "%s/precip_rst/%s_precip_rst.img" % (options['rasterPath'],options['tablePrefix']),
+    precip ={'path':       "%s/precip_rst/%s_precip_rst.tif" % (options['rasterPath'],options['tablePrefix']),
             'name':       'prec',
             'stats':      'avg median sum min max',
             'band':       1 }
@@ -207,80 +212,29 @@ def getContinuousRasters(options):
             'stats':      'avg median stdev min max',
             'band':       1 }
 
-    nl1992 ={'path':       "%s/lights_1992/%s_nl1992/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
-            'name':       'nl1992',
+    impervious ={'path':       "%s/impervious/%s_impv/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+            'name':       'imperv',
             'stats':      'avg median stdev min max',
-            'band':       1 }
-
-    nl1993 ={'path':       "%s/lights_1993/%s_nl1993/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
-            'name':       'nl1993',
-            'stats':      'avg median stdev min max',
-            'band':       1 }
-
-    nl1994 ={'path':       "%s/lights_1994/%s_nl1994/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
-            'name':       'nl1994',
-            'stats':      'avg median stdev min max',
-            'band':       1 }
-
-    nl1995 ={'path':       "%s/lights_1995/%s_nl1995/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
-            'name':       'nl1995',
-            'stats':      'avg median stdev min max',
-            'band':       1 }
-
-    nl1996 ={'path':       "%s/lights_1996/%s_nl1996/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
-            'name':       'nl1996',
-            'stats':      'avg median stdev min max',
-            'band':       1 }
-
-    nl1997 ={'path':       "%s/lights_1997/%s_nl1997/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
-            'name':       'nl1997',
-            'stats':      'avg median stdev min max',
-            'band':       1 }
-
-    nl1998 ={'path':       "%s/lights_1998/%s_nl1998/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
-            'name':       'nl1998',
-            'stats':      'avg median stdev min max',
-            'band':       1 }
-
-    nl1999 ={'path':       "%s/lights_1999/%s_nl1999/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
-            'name':       'nl1999',
-            'stats':      'avg median stdev min max',
-            'band':       1 }
-
-    nl2000 ={'path':       "%s/lights_2000/%s_nl2000/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
-            'name':       'nl2000',
-            'stats':      'avg median stdev min max',
-            'band':       1 }
-
-    nl2001 ={'path':       "%s/lights_2001/%s_nl2001/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
-            'name':       'nl2001',
-            'stats':      'avg median stdev min max',
-            'band':       1 }
-
-    nl2002 ={'path':       "%s/lights_2002/%s_nl2002/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
-            'name':       'nl2002',
-            'stats':      'avg median stdev min max',
-            'band':       1 }
-
+            'band':       1 }    
+    
     nl2003 ={'path':       "%s/lights_2003/%s_nl2003/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
             'name':       'nl2003',
             'stats':      'avg median stdev min max',
             'band':       1 }
 
-    impervious ={'path':       "%s/impervious/%s_impv/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
-            'name':       'imperv',
-            'stats':      'avg median stdev min max',
-            'band':       1 }    
+    pop04  ={'path':       "%s/pop04/%s_pop04/hdr.adf" % (options['rasterPath'],options['tablePrefix']),
+             'name':       'pop04',
+             'stats':     'avg median stdev min max',
+             'band':       1 }
 
     crl = [wb, fertc, srtm, rusle, rusle2, k, glac, pestc, treecv, footp, \
            resdp, soildeg, wild, temp, tempr, wetdays, pet, precip, \
-           humidity, slope, irr, nl1992, nl1993, nl1994, nl1995, nl1996, \
-           nl1997, nl1998, nl1999, nl2000, nl2001, nl2002, nl2003, impervious]
+           humidity, slope, irr, impervious, nl2003, pop04]
     return crl
 
 def getVectors(options):
     # basin_id field MUST exist in both the pour point and the basins
-    basins = {'path':    "%s/%s_basins.shp" % (options['vectorPath'],options['tablePrefix']),
+    basins = {'path':    "%s/%s_bas.shp" % (options['vectorPath'],options['tablePrefix']),
              'pourpath': "%s/%s_pours.shp" % (options['vectorPath'],options['tablePrefix']),
              'name':     'bsn',
              'pourname': 'pour',
@@ -406,7 +360,8 @@ def makeContinuousSql(c,r,v,options):
                 sql += ", %s" % cols[i]
     
         sql += ")"
-        #print sql
+        if verbose:
+            print sql
     
         c.execute(sql)
         
@@ -443,8 +398,10 @@ def makeJoinSql(c,cr,v,options):
          (options['tablePrefix'],v['name'],r['name'],r['name'],v['idfield'],r['name'],r['name'])
     
     sql += ")"
+    
+    if verbose:
+        print sql
 
-    #print sql
     try:
         c.execute(sql)
         c.connection.commit()
@@ -459,13 +416,15 @@ def importShp(v,options):
     # import the basins shapfile
     cmd = "shp2pgsql -D %s %s_%s | psql -d %s -h localhost -U perry" % \
           (v['path'],options['tablePrefix'],v['name'],options['db'])
-    #print cmd
+    if verbose:
+        print cmd
     os.system(cmd)
 
     # import the pour points shapfile
     cmd = "shp2pgsql -D %s %s_%s | psql -d %s -h localhost -U perry" % \
           (v['pourpath'],options['tablePrefix'],v['pourname'],options['db'])
-    #print cmd
+    if verbose:
+        print cmd
     os.system(cmd)
 
     return 0
@@ -473,8 +432,11 @@ def importShp(v,options):
 def makePivotSql(c,dr,v,options):
     # Pivot the discrete tables and join to master table
     for r in dr:
-        c.execute("SELECT discrete_pivot('%s_join','%s_%s_%s','%s')" % \
-          (options['tablePrefix'],options['tablePrefix'],v['name'],r['name'],r['name']) ) 
+        sql = "SELECT discrete_pivot('%s_join','%s_%s_%s','%s')" % \
+                  (options['tablePrefix'],options['tablePrefix'],v['name'],r['name'],r['name'])
+        if verbose:
+            print sql
+        c.execute(sql)
     c.connection.commit()
     return 0
 
@@ -506,14 +468,16 @@ def exportViews(v,options):
     cmd = "pgsql2shp -f %s/%s_%s_pointview.shp %s %s_%s_pointview" % \
           (options['outshpDir'],options['tablePrefix'], v['name'], options['db'], \
            options['tablePrefix'], v['name'])
-    #print cmd
+    if verbose:
+        print cmd
     os.system(cmd)
 
     # export the basins 
     cmd = "pgsql2shp -f %s/%s_%s_polyview.shp %s %s_%s_polyview" % \
           (options['outshpDir'],options['tablePrefix'], v['name'], options['db'], \
            options['tablePrefix'], v['name'])
-    #print cmd
+    if verbose:
+        print cmd
     os.system(cmd)
 
 
