@@ -17,4 +17,4 @@ def getArgs():
 if __name__ == '__main__':
 
     prefix, attribute = getArgs()
-    addPlumes("%s.img" % prefix, attribute)
+    addPlumes("%s.tif" % prefix, attribute)

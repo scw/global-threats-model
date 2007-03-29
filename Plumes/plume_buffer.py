@@ -257,9 +257,9 @@ def processCategory(c, c_data, vname, log):
     log.flush()
 
 def addPlumes(outputFile, column):
-    plumes = glob.glob("%s/plume_%s*" % (getPath(), column))
+    plumes = glob.glob("%s/plume_%s*" % (getPath(), getName(column)))
     (name, ext) = os.path.splitext(outputFile)
-
+    os.putenv('PYTHONPATH', '/opt/gdal/pymod') # hack
     pl = len(plumes)
     if pl == 0:
         print "No data found for column %s" % column
@@ -271,18 +271,21 @@ def addPlumes(outputFile, column):
         start = i 
         end = i + batch - 1 # don't double count edges
         id = "plume_%s_%s_%s" % (name, start, end)
-        tempids.append("%s.img" % id)
-        cmd = "./gdal_add.py -o %s.img -ot Float32 -of HFA -init 0 %s " % \
-              (id, ' '.join(plumes[start:end]) )
+        tempids.append("%s.tif" % id)
+        cmd = "gdal_add.py -o %s.tif -ot Float32 " % id + \
+              " -init 0 %s " % ' '.join(plumes[start:end])
         print id
-        os.popen(cmd)
+        handle = os.popen(cmd, 'r', 1)
+        handle.close()
 
-    cmd = "./gdal_add.py -o %s -ot Float32 -of HFA -init 0 %s " % \
-          (outputFile, ' '.join(tempids))
+    cmd = "gdal_add.py -o %s -ot Float32 -init 0 %s" \
+          % (outputFile, ' '.join(tempids))
     print "================================================="
-    print " Adding all plumes into a single grid"
-    print cmd
-    os.popen(cmd)
+    print " Adding all plumes into %s" % outputFile
+    #print "Finish the job by running: %s" % cmd
+    handle = os.popen(cmd, 'r', 1)
+    print "".join(handle.readlines())
+    handle.close()
 
     #for id in tempids:
     #    os.remove(id)
@@ -306,6 +309,6 @@ if __name__ == '__main__':
         i = i + 1
     """
     for att in attrib:
-        addPlumes("%s_%s_total.img" % (vname, att), att)
+        addPlumes("%s_%s_total.tif" % (vname, att), att)
     """
     log.close()
