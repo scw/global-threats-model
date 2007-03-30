@@ -281,11 +281,11 @@ def addPlumes(outputFile, column):
     cmd = "./gdal_add.py -o %s -ot Float32 -init 0 %s" \
           % (outputFile, ' '.join(tempids))
     print "================================================="
-    print " Adding all plumes into %s" % outputFile
-    #print "Finish the job by running: %s" % cmd
-    handle = os.popen(cmd, 'r', 1)
-    print "".join(handle.readlines())
-    handle.close()
+    #print " Adding all plumes into %s" % outputFile
+    print "Finish the job by running: %s" % cmd
+    #handle = os.popen(cmd, 'r', 1)
+    #print "".join(handle.readlines())
+    #handle.close()
 
     #for id in tempids:
     #    os.remove(id)
