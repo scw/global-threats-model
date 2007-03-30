@@ -272,13 +272,13 @@ def addPlumes(outputFile, column):
         end = i + batch - 1 # don't double count edges
         id = "plume_%s_%s_%s" % (name, start, end)
         tempids.append("%s.tif" % id)
-        cmd = "gdal_add.py -o %s.tif -ot Float32 " % id + \
+        cmd = "./gdal_add.py -o %s.tif -ot Float32 " % id + \
               " -init 0 %s " % ' '.join(plumes[start:end])
         print id
         handle = os.popen(cmd, 'r', 1)
         handle.close()
 
-    cmd = "gdal_add.py -o %s -ot Float32 -init 0 %s" \
+    cmd = "./gdal_add.py -o %s -ot Float32 -init 0 %s" \
           % (outputFile, ' '.join(tempids))
     print "================================================="
     print " Adding all plumes into %s" % outputFile
