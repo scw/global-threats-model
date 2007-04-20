@@ -15,6 +15,5 @@ def getArgs():
 
 ###############################################
 if __name__ == '__main__':
-
     prefix, attribute = getArgs()
     addPlumes("%s.tif" % prefix, attribute)

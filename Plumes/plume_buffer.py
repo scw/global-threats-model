@@ -256,10 +256,20 @@ def processCategory(c, c_data, vname, log):
     cleanHouse(vname, tmp)
     log.flush()
 
+def handle(cmd):
+    try:
+        handle = os.popen(cmd, 'r', 1)
+        return handle
+    finally:
+        handle.close()
+
 def addPlumes(outputFile, column):
     plumes = glob.glob("%s/plume_%s*" % (getPath(), getName(column)))
     (name, ext) = os.path.splitext(outputFile)
+
     os.putenv('PYTHONPATH', '/opt/gdal/pymod') # hack
+    addCmd = os.path.realpath(os.path.dirname(sys.argv[0])) + '/gdal_add.py'
+
     pl = len(plumes)
     if pl == 0:
         print "No data found for column %s" % column
@@ -271,21 +281,24 @@ def addPlumes(outputFile, column):
         start = i 
         end = i + batch - 1 # don't double count edges
         id = "plume_%s_%s_%s" % (name, start, end)
-        tempids.append("%s.tif" % id)
-        cmd = "./gdal_add.py -o %s.tif -ot Float32 " % id + \
-              " -init 0 %s " % ' '.join(plumes[start:end])
+        cmd = "%s -o %s.tif -ot Float32 %s" % \
+              (addCmd, id, ' '.join(plumes[start:end]))
         print id
-        handle = os.popen(cmd, 'r', 1)
-        handle.close()
+        #handle(cmd)
 
-    cmd = "./gdal_add.py -o %s -ot Float32 -init 0 %s" \
-          % (outputFile, ' '.join(tempids))
+        # gdal_translate the results to minimize file footprint
+        cmd = "gdal_translate %s.tif -co COMPRESS=PACKBITS %s.tiff" % (id, id)
+        #handle(cmd)
+
+        tempids.append("%s.tiff" % id)
+        #os.remove("%s.tif" % id)
+
+    cmd = "%s -o %s -ot Float32 %s" % (addCmd, outputFile, ' '.join(tempids))
     print "================================================="
-    #print " Adding all plumes into %s" % outputFile
+    print " Adding all plumes into %s" % outputFile
     print "Finish the job by running: %s" % cmd
-    #handle = os.popen(cmd, 'r', 1)
-    #print "".join(handle.readlines())
-    #handle.close()
+    #handle(cmd)
+    #print "".join(h.readlines())
 
     #for id in tempids:
     #    os.remove(id)
