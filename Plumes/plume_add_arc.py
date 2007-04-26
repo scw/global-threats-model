@@ -31,7 +31,7 @@ name = os.path.basename(ws)
 files = glob.glob('plume*.tif*')
 r = 'zyxwvutsrqponmlkjihgfedcba'
 ra  = [r[i] for i in range(len(r))]
-pass2 = []
+pass2 = pass3 = []
 
 try:
     for i in range(0, len(files), 10): # add 10 rasters per run
@@ -40,11 +40,18 @@ try:
         pass2.append(output)
         print "generating %s" % output
         gp.SingleOutputMapAlgebra("(%s)" % exp, output)
-
-    exp = " + ".join(pass2)
+   
+    
+    for i in range(0, len(pass2), 5): # add 5 rasters per run
+        exp = " + ".join(pass2[i:i+4])
+        output = '%s_%s_2' % (name, ra.pop())
+        pass3.append(output)
+        print "generating %s" % output
+        gp.SingleOutputMapAlgebra("(%s)" % exp, output)
+    
+    exp = " + ".join(pass3)
     print "generating merged final output %s" % name
     gp.SingleOutputMapAlgebra("(%s)" % exp, name)
-    
+
 except:
     print gp.GetMessages()
-
