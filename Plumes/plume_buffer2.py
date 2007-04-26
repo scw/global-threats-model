@@ -294,35 +294,6 @@ def addPlumes(outputFile, column):
         tempids.append(id)
         os.remove("%s.tif" % id)
     
-    cmd = "g.region rast=ocean"
-    handle(cmd)
-
-    cmd = "r.mapcalc %s=0" % name
-    handle(cmd)
-    
-    for id in tempids:
-        cmd = "r.in.gdal -o in=%s.tiff out=%s" % (id, id)
-        handle(cmd)
-        
-        print "Adding %s..." % id
-        cmd = 'r.mapcalc plume_temp = "%s + if( isnull(%s), 0, %s)"' % (name, id, id) 
-        handle(cmd)
-
-        cmd = "g.remove=%s > /dev/null 2>&1" % name
-        handle(cmd)
-
-        cmd  = "g.rename rast=plume_temp,%s > /dev/null 2>&1" % name
-        handle(cmd)
-
-    print "Exporting final layer %s..." % name
-    cmd = "r.out.gdal in=%s out=%s.tiff" % (name, name)
-    handle(cmd)
-
-    print "Compressing final layer %s" % name
-    cmd = "gdal_translate %s.tiff -co COMPRESS=PACKBITS %s.tif" % (name, name)
-
-    os.remove("%s.tiff" % name)
-
 if __name__ == '__main__':
     vname, attrib = getArgs()
     categories = getCatList(vname,attrib)
