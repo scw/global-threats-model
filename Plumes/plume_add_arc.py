@@ -39,7 +39,7 @@ try:
         output ='%s_%s' % (name, ra.pop())
         pass2.append(output)
         print "generating %s" % output
-        #gp.SingleOutputMapAlgebra("(%s)" % exp, output)
+        gp.SingleOutputMapAlgebra("(%s)" % exp, output)
 
     exp = " + ".join(pass2)
     print "generating merged final output %s" % name
