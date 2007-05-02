@@ -264,55 +264,30 @@ def handle(cmd):
         handle.close()
 
 def addPlumes(outputFile, column):
-    plumes = glob.glob("%s/plume_%s*" % (getPath(), getName(column)))
     (name, ext) = os.path.splitext(outputFile)
-
-    os.putenv('PYTHONPATH', '/opt/gdal/pymod') # hack
-    addCmd = os.path.realpath(os.path.dirname(sys.argv[0])) + '/gdal_add.py'
-
-    pl = len(plumes)
-    if pl == 0:
-        print "No data found for column %s" % column
-        return False
-
     batch = 60
-    tempids = []
-    
-    for i in range(0,pl,batch):
-        start = i 
-        end = i + batch - 1 # don't double count edges
-        id = "plume_%s_%s_%s" % (name, start, end)
-        cmd = "%s -o %s.tif -ot Float32 %s" % \
-              (addCmd, id, ' '.join(plumes[start:end]))
-        print id
-        handle(cmd)
-
-        # gdal_translate the results to minimize file footprint
-        cmd = "gdal_translate %s.tif -co COMPRESS=PACKBITS %s.tiff" % (id, id)
-        handle(cmd)
-
-        tempids.append(id)
-        os.remove("%s.tif" % id)
+    files = glob.glob('plume*.tif*')
+    ext   = os.path.splitext(files[0])[1]
+    tempids = [os.path.splitext(i)[0] for i in files]
     
     cmd = "g.region rast=ocean"
     handle(cmd)
 
-    cmd = "r.mapcalc %s=0" % name
-    handle(cmd)
-    
+    calc = []
+
     for id in tempids:
-        cmd = "r.in.gdal -o in=%s.tiff out=%s" % (id, id)
+        cmd = "r.in.gdal -o in=%s%s out=%s" % (id, ext, id)
         handle(cmd)
-        
-        print "Adding %s..." % id
-        cmd = 'r.mapcalc plume_temp = "%s + if( isnull(%s), 0, %s)"' % (name, id, id) 
-        handle(cmd)
+        calc.append("if (isnull(%s), 0, %s)" % (id, id)) 
+    
+    print "Merging %i input layers..." % len(calc)
 
-        cmd = "g.remove=%s > /dev/null 2>&1" % name
-        handle(cmd)
+    f = open('mapcalc-expression', 'wb')
+    f.write("%s = %s" % (name, " + ".join(calc)))
+    f.close()
 
-        cmd  = "g.rename rast=plume_temp,%s > /dev/null 2>&1" % name
-        handle(cmd)
+    cmd = 'r.mapcalc < %s' % f.name
+    handle(cmd)
 
     print "Exporting final layer %s..." % name
     cmd = "r.out.gdal in=%s out=%s.tiff" % (name, name)
@@ -321,7 +296,9 @@ def addPlumes(outputFile, column):
     print "Compressing final layer %s" % name
     cmd = "gdal_translate %s.tiff -co COMPRESS=PACKBITS %s.tif" % (name, name)
 
-    os.remove("%s.tiff" % name)
+    # delete uncompressed tiff and mapcalc expression
+    for fn in ['%s.tiff' % name, f.name]:
+        os.remove(fn)
 
 if __name__ == '__main__':
     vname, attrib = getArgs()
