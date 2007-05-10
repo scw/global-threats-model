@@ -1,0 +1,69 @@
+import osr
+
+moll = osr.SpatialReference()
+moll.ImportFromProj4('+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs')
+
+moll.ExportToWkt()
+'PROJCS["World_Mollweide",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],PROJECTION["Mollweide"],PARAMETER["False_Easting",0],PARAMETER["False_Northing",0],PARAMETER["Central_Meridian",0],UNIT["Meter",1]]'
+
+INSERT INTO "spatial_ref_sys" (srid, auth_name, auth_srid, srtext, proj4text)
+VALUES (40000, 'NCEAS', 40000, 'PROJCS["World_Mollweide",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],PROJECTION["Mollweide"],PARAMETER["False_Easting",0],PARAMETER["False_Northing",0],PARAMETER["Central_Meridian",0],UNIT["Meter",1]]',
+'+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs')
+
+SELECT CURRVAL('shipping_srid_seq');
+
+
+alter table shipping add ll_geom Geometry;
+
+UPDATE shipping set ll_geom = GeometryFromText('Point(' || lon || ' ' || lat || ')', 4326);
+
+
+CREATE TABLE shipping_clean AS
+   SELECT gid, lat, lon, id, 
+	  CAST(regexp_replace(date, 
+	  	 '([0-9]{2})([0-9]{2})$', 
+	        E'\\1 \\2:00'
+              ) AS timestamp) AS date, 
+          ll_geom AS the_geom 
+   FROM shipping;
+
+ALTER TABLE shipping_clean ADD date_field date;
+
+
+SELECT id, date, (SELECT s1.lat, s1.lon FROM shipping_clean s1 WHERE s1.id = t1.id) AS (s1_lat, s1_lon)
+FROM shipping_clean t1
+GROUP BY
+t1.id;
+2005-02-2818
+
+-(\d{2})(\d{2})
+-\1 \2:00
+
+FROM '2001-01-02 12:00
+
+'2001-01-02 20:00'
+
+SELECT regexp_replace(date, '([0-9]{2})([0-9]{2})$', E'\\1 \\2:00') FROM shipping_clean LIMIT 1;
+
+SELECT date(substring(record, '[a-zA-Z ]{1,}[0-9]{1,}') || ' 2005')
+    AS "Date" FROM log LIMIT 1;
+
+ SELECT CAST(regexp_replace(date, '([0-9]{2})([0-9]{2})$', E'\\1 \\2:00') AS timestamp) FROM shipping_clean LIMIT 1;
+
+UPDATE shipping_clean SET date_field = CAST(regexp_replace(date, '([0-9]{2})([0-9]{2})$', E'\\1 \\2:00') AS timestamp);
+
+
+CREATE TABLE ship_lines (id varchar(15), count int, date_min timestamp, date_max timestamp, the_geom Geometry);
+
+CREATE TABLE ship_points (id varchar(15), date timestamp, the_geom Geometry);
+
+http://docs.codehaus.org/display/GEOSDOC/Custom+projection+definition+in+PostGIS
+
+Dateline issues:
+
+Example pair wrapping around the world:
+id = 'A8CP5'
+select id, astext(the_geom) FROM ship_lines WHERE id = 'A8CP5';
+
+-175.5 49,175.5 52.9
+
