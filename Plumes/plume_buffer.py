@@ -295,10 +295,10 @@ def addPlumes(outputFile, column):
 
     print "Compressing final layer %s" % name
     cmd = "gdal_translate %s.tiff -co COMPRESS=PACKBITS %s.tif" % (name, name)
+    handle(cmd)
 
     # delete uncompressed tiff and mapcalc expression
-    for fn in ['%s.tiff' % name, f.name]:
-        os.remove(fn)
+    os.remove('%s.tiff' % name)
 
 if __name__ == '__main__':
     vname, attrib = getArgs()
