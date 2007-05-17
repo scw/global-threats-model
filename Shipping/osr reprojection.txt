@@ -65,5 +65,23 @@ Example pair wrapping around the world:
 id = 'A8CP5'
 select id, astext(the_geom) FROM ship_lines WHERE id = 'A8CP5';
 
--175.5 49,175.5 52.9
 
+ enqueue each pair onto a queue
+ dequeue the top item, and look ahead to the new [0] position:
+ from these coordinates, make our linestring
+
+ CREATE INDEX idx ON shipping_clean(id);
+
+ CREATE <spatial indexes on ship_lines, srtm30_mask>
+
+ CREATE TABLE ship_lines_erase AS SELECT id, count, date_min, date_max, 
+ DIFFERENCE(sl.the_geom, m.the_geom) AS the_geom FROM ship_lines as sl, 
+ srtm30_mask AS m;
+
+ 131 minutes to convert points to LINESTRING elements
+
+ 'POLYGON(179.9 -90,179.9 90,-179.9 90,-179.9 -90,179.9 -90)'
+
+ ZCDG7 date_min = '2004-12-18 22:00:00'
+
+ ZCDG7 | LINESTRING(180 -24.0406779661,-180 -24.0406779661)
