@@ -2,7 +2,7 @@
 """
  extract_clipped.py
 
- Extract the shipping data within each 60x30 degree boxes
+ Extract the shipping data within each 30x15 degree boxes
  
 Author: Shaun C. Walbridge
 """
@@ -19,15 +19,19 @@ def commit(sql):
     conn.commit()
 
 # connect to PostGIS database
-dbc = "dbname=gisdata user=postgres host=localhost"
-try:
-    conn = psycopg2.connect(dbc)
-    c = conn.cursor()
-except:
-    print "connection to: \"%s\" failed." % dbc
-    sys.exit(1)
+connect():
+    dbc = "dbname=gisdata user=postgres host=localhost"
+    try:
+        conn = psycopg2.connect(dbc)
+        return conn.cursor()
+    except:
+        print "connection to: \"%s\" failed." % dbc
+        sys.exit(1)
 
 
+# create bbox layer from graticule
+
+c = connect()
 c.execute("SELECT name FROM shipping_bboxes")
 rows = c.fetchall()
 
