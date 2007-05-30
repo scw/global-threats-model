@@ -31,7 +31,7 @@ if __name__ == "__main__":
     ds = ogr.Open(poly_ds)
     lyr = ds.GetLayer(poly_lyr)
    
-    # GetExtent returns [minx, miny, maxx, maxy]
+    # GetExtent returns [minx, maxx, miny, maxy]
     extent = lyr.GetExtent()
 
     # ASCII file for writing data to
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     asc.write("ncols %s\n" % xcount)
     asc.write("nrows %s\n" % ycount)
     asc.write("xllcorner %s\n" % extent[0])
-    asc.write("yllcorner %s\n" % extent[1])
+    asc.write("yllcorner %s\n" % extent[2])
     asc.write("cellsize %s\n" % '0.008333333333333')
     asc.write("nodata_value %s\n" % -9999)
 
