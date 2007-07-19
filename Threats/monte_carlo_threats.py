@@ -13,6 +13,8 @@ Usage: monte_carlo_threats.py /path/to/model.csv /path/to/grass/location
 import os
 import re
 import sys
+import shutil
+
 from os.path import *
 from grass_settings import settings
 
@@ -55,12 +57,13 @@ t-b resol:  1
 if len(sys.argv) == 3:
     csv_file = sys.argv[1]
     csv_name = splitext(basename(csv_file))[0]
-    location = dirname(sys.argv[2])
+    location = sys.argv[2]
 else:
     csv_name = 'artisinal_fishing_model'
     location = '/mnt/storage/marine_threats/grass/world_mask'
 
 mapset = '%s/%s' % (location, csv_name)
+cwd = os.getcwd()
 # XXX: check for csv existence?
 
 # create new mapset
@@ -99,11 +102,17 @@ gisrc.close()
 
 export_vars({"GISRC": os.path.join(tempdir,"grass60rc")})
 
-#print os.environ['PATH']
-#sys.exit()
+print "Running the threats model.."
+# Calculate the threat model
+os.chdir(cwd)
+cmd = "python threat_model.py %s %s" % (csv_file, csv_name)
+handle = os.popen(cmd, 'r', 1)
+for line in handle:
+      print line,
+handle.close()
 
+# Calculate the statistics for the resulting threat model
 cmd = 'r.info -r %s' % csv_name
-
 maxmin = os.popen(cmd).read().split()
 for v in maxmin:
     (var, val) = v.split("=")
@@ -114,10 +123,12 @@ range = max - min
 bins = int(range * 100)
 
 cmd = "r.stats -c -C %s@PERMANENT nsteps=%i output=%s.txt" % (csv_name, bins, csv_name)
-os.popen(cmd)
+#os.popen(cmd)
+
+model_csv = '%s.csv' % csv_name
 
 fin = open('%s.txt' % csv_name, 'r')
-fout = open('%s.csv'% csv_name, 'w')
+fout = open(model_csv, 'w')
 lines = fin.readlines()
 
 pattern = '^[0-9\.]+-([0-9]+\.[0-9]{2})[0-9]+ ([0-9]+)'
@@ -128,3 +139,7 @@ for line in lines:
 
 fin.close()
 fout.close()
+
+# copy the CSV to the user's home directory
+shutil.copyfile('./%s' % model_csv, '%s/%s' % (os.environ['HOME'], model_csv))
+
