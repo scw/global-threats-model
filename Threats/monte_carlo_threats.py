@@ -33,14 +33,15 @@ def export_vars(env=None):
     os.environ['GIS_LOCK']=str(os.getpid())
 
 wind = \
-"""proj:       99
+"""\
+proj:       99
 zone:       0
-north:      9020067.37264063
-south:      -9020047.34806998
-east:       18040134.2452895
-west:       -18040095.19613172
-cols:       38610
-rows:       19305
+north:      9020067.3726316
+south:      -9020981.82694699
+east:       18041068.72414817
+west:       -18040095.196132
+cols:       38611
+rows:       19306
 e-w resol:  934.47887701
 n-s resol:  934.47887701
 top:        1
@@ -51,7 +52,7 @@ depths:     1
 e-w resol3: 934.47887701
 n-s resol3: 934.47887701
 t-b resol:  1
-"""
+"""\
 
 # find the range of values
 if len(sys.argv) == 3:
@@ -65,10 +66,14 @@ else:
 mapset = '%s/%s' % (location, csv_name)
 cwd = os.getcwd()
 # XXX: check for csv existence?
+from socket import gethostname
+print gethostname()
 
+print mapset
 # create new mapset
 if not isdir(mapset):
     os.mkdir(mapset)
+
 wf = open("%s/WIND" % mapset, 'w')
 wf.write(wind)
 wf.close()
@@ -122,8 +127,8 @@ range = max - min
 # bins are of size .01
 bins = int(range * 100)
 
-cmd = "r.stats -c -C %s@PERMANENT nsteps=%i output=%s.txt" % (csv_name, bins, csv_name)
-#os.popen(cmd)
+cmd = "r.stats -c -C %s nsteps=%i output=%s.txt" % (csv_name, bins, csv_name)
+os.popen(cmd)
 
 model_csv = '%s.csv' % csv_name
 
@@ -143,3 +148,6 @@ fout.close()
 # copy the CSV to the user's home directory
 shutil.copyfile('./%s' % model_csv, '%s/%s' % (os.environ['HOME'], model_csv))
 
+# delete mapset to save on disk
+if isdir(mapset):
+    shutil.rmtree(mapset)
