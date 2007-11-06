@@ -19,7 +19,6 @@
 
 import sys
 import os
-import time
 
 def parseMatrix(matrix_file):
     try:
@@ -68,12 +67,7 @@ def processAllCombos(matrix,output_map):
 
         response = os.popen(habitat_mapcalc)
         print response
-
-    # threading causes contention issues, so wait for all threads to sync in cheapass way
-    duration = 180
-    time.sleep(duration)
-    print "Waiting for %i seconds for threads to finish..." % duration
-
+        
     mapcalc = " r.mapcalc %s = '%s'" % (output_map, ' + '.join(habitat_combos))
     print mapcalc
     #sys.exit()
@@ -84,6 +78,8 @@ def processAllCombos(matrix,output_map):
     valid = True
     return {'valid': valid, 'output': output_map} 
 
+def waitForCompletion(habitat_combos)
+    
 
 if __name__ == "__main__":
     try:
