@@ -28,35 +28,52 @@ def parseMatrix(matrix_file):
         print "can't read matrix file"
         sys.exit(1)
 
-    habitats = lines[0].replace('\n','').split(',')[1:]
+    habitats = lines[0].replace('\n','').replace('\r','').split(',')[1:]
     matrix = {}
-    for i in (range(1,len(lines))):
-        line = lines[i].replace('\n','').split(',')
-        threat = line[0]
-        weights = {}
-        for j in (range(1,len(habitats))):
-            weights[habitats[j]] = float(line[j])
+    for h in habitats:
+        matrix[h] = {}
 
-        matrix[threat] = weights
+    for i in (range(1,len(lines))):
+        line = lines[i].replace('\n','').replace('\r','').split(',')
+        threat = line[0]
+        values = line[1:]
+        #print "\n%s\n" % threat + "-" * 20
+        weights = {}
+        for j in (range(0,len(habitats))):
+            #print "%s = %s" % (habitats[j], values[j])
+            matrix[habitats[j]][threat] = float(values[j])
+            #weights[habitats[j]] = float(values[j])
 
     print
-    print matrix
+#    print matrix
     print
     return matrix
 
 def processAllCombos(matrix,output_map):
-    weighted_terms = []
-    for threat in matrix.keys():
-        for habitat in matrix[threat].keys():
+    habitat_combos = []
+    for habitat in matrix.keys():
+        weighted_terms = []
+        for threat in matrix[habitat].keys():
             #TODO check that combo layer exists
             input = "combo_" + threat + "_" + habitat
-            weight = matrix[threat][habitat]
+            weight = matrix[habitat][threat]
             weighted_terms.append("(%s * %s)" % (weight, input) )
-    mapcalc  = " r.mapcalc %s = \"" % output_map
-    mapcalc += ' + '.join(weighted_terms)
-    mapcalc += "\""
-    print mapcalc
 
+        # weighted terms now contains a list of habitat<->threat pairs for a specific _habitat_
+        habitat_combo_name = '%s_combo' % habitat
+        habitat_combos.append(habitat_combo_name)
+        habitat_mapcalc = " r.mapcalc %s = '%s'" % (habitat_combo_name, ' + '.join(weighted_terms))
+        print "\n\n CALCULATING FOR %s" % habitat + "-" * 40 + "\n%s" % habitat_mapcalc 
+
+        #response = os.popen(habitat_mapcalc)
+        #print response
+        
+    #mapcalc  = " r.mapcalc %s = \"" % output_map
+    #mapcalc += ' + '.join(weighted_terms)
+    #mapcalc += "\""
+    mapcalc = " r.mapcalc %s = '%s'" % (output_map, ' + '.join(habitat_combos))
+    print mapcalc
+    sys.exit()
     response = os.popen(mapcalc).read().rstrip()
     print response
 
