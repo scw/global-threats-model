@@ -63,17 +63,17 @@ def processAllCombos(matrix,output_map):
         habitat_combo_name = '%s_combo' % habitat
         habitat_combos.append(habitat_combo_name)
         habitat_mapcalc = " r.mapcalc %s = '%s'" % (habitat_combo_name, ' + '.join(weighted_terms))
-        print "\n\n CALCULATING FOR %s" % habitat + "-" * 40 + "\n%s" % habitat_mapcalc 
+        #print "\n\n CALCULATING FOR %s" % habitat + "-" * 40 + "\n%s" % habitat_mapcalc 
 
-        #response = os.popen(habitat_mapcalc)
-        #print response
+        response = os.popen(habitat_mapcalc)
+        print response
         
     #mapcalc  = " r.mapcalc %s = \"" % output_map
     #mapcalc += ' + '.join(weighted_terms)
     #mapcalc += "\""
     mapcalc = " r.mapcalc %s = '%s'" % (output_map, ' + '.join(habitat_combos))
     print mapcalc
-    sys.exit()
+    #sys.exit()
     response = os.popen(mapcalc).read().rstrip()
     print response
 
