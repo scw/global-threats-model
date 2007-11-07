@@ -16,10 +16,9 @@ import sys
 import shutil
 
 from os.path import *
-from grass_settings import settings
 
 csv_name = sys.argv[1]
-"""
+
 # Calculate the statistics for the resulting threat model
 cmd = 'r.info -r %s' % csv_name
 maxmin = os.popen(cmd).read().split()
@@ -33,7 +32,7 @@ bins = int(range * 100)
 
 cmd = "r.stats -c -C %s nsteps=%i output=%s.txt" % (csv_name, bins, csv_name)
 os.popen(cmd)
-"""
+
 model_csv = '%s.csv' % csv_name
 
 fin = open('%s.txt' % csv_name, 'r')
@@ -65,3 +64,4 @@ flog.close()
 
 # copy the CSV to the user's home directory
 shutil.copyfile('./%s' % model_csv, '%s/%s' % (os.environ['HOME'], model_csv))
+
