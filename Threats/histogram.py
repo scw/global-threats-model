@@ -26,7 +26,7 @@ def calculate_histogram(bins, raster, basename, stats = False):
         pixel_count = 0
         sum_count = 0
 
-    pattern = '^[0-9\.]+-([0-9]+\.[0-9]{2})[0-9]+ ([0-9]+)'
+    pattern = '^[0-9\.]+-([0-9]+\.[0-9]+) ([0-9]+)'
     lines = fin.readlines()
 
     for line in lines:
