@@ -84,7 +84,6 @@ def processAllCombos(matrix,output_map):
     valid = True
     return {'valid': valid, 'output': output_map} 
 
-
 if __name__ == "__main__":
     try:
         matrix_file = sys.argv[1]
@@ -97,6 +96,3 @@ if __name__ == "__main__":
     response = processAllCombos(matrix,output_map)
     if response['valid']:
         print "Your model result is ... '%s'" % response['output']
-
-
-
