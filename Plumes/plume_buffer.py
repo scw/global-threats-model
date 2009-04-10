@@ -257,7 +257,12 @@ def processCategory(c, c_data, vname, log):
             init = remain
             
             # log.write("%2f,%2f,%2f,%2f,%2f\n" % (dist, count, percell, sum, remain))
-            recode_table += "%s:%s:%s\n" % (dist, dist, percell) 
+            # test if we're being handed a continuous raster, which has ranges of values
+            if dist.find('-'):
+                low, high = dist.split('-')
+                recode_table += "%s:%s:%s\n" % (low, high, percell)
+            else:
+                recode_table += "%s:%s:%s\n" % (dist, dist, percell) 
 
         # Reclass the dw map and recreate the plume map
         cmd = "r.recode input=%s output=%s <<EOF \n%sEOF" % (dw,plume,recode_table)
