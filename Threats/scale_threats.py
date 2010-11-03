@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
- Scale threats layers from 0 to 1 (continuos).
+ Scale threats layers from 0 to 1 (continous).
  Assumes all threat layers are prefixed "prethreat_"
 
 """
